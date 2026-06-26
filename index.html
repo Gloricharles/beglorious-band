@@ -109,6 +109,17 @@
   .exo .name .noplay { color: var(--ink); font-weight: 500; }
   .exo .detail { color: var(--muted); font-size: 12px; margin-top: 2px; }
   .exo .detail.pending { color: var(--pending); font-style: italic; }
+  .exo .rest { color: #4b5563; font-size: 11px; margin-top: 4px; font-weight: 500; }
+  .exo .note { color: var(--muted); font-size: 11px; margin-top: 3px; font-style: italic; padding: 4px 8px; background: #fafbfc; border-left: 2px solid var(--line); border-radius: 2px; }
+
+  .bloc-note { padding: 8px 16px; font-size: 12px; color: var(--muted); font-style: italic; background: #fafbfc; border-top: 1px solid var(--line); }
+
+  .day5-help { padding: 14px 16px; font-size: 13px; line-height: 1.5; color: var(--ink); background: #fff8f3; border-bottom: 1px solid var(--line); }
+  .day5-help ul { margin: 8px 0; padding-left: 18px; }
+  .day5-help li { margin-bottom: 6px; }
+
+  .session.day5 .subhead.bloc-speed-main { background: var(--speed-soft); color: var(--speed-strong); }
+  .session.day5 .subhead.bloc-metcon { background: var(--j5-soft); color: var(--j5-strong); }
 
   .option-tabs { display: flex; gap: 6px; padding: 0 16px 12px; flex-wrap: wrap; }
   .option-tabs .pill { font-size: 12px; padding: 5px 12px; }
@@ -171,55 +182,65 @@ const MOB = {
       ["","Banded Chest press","10reps","Aqg4h2Y2otY"]],
 };
 
+// MAIN format: [bloc, name, detail, vid, rest, note]
+const REST_A1 = "Repos 30sec entre series";
+const REST_A2 = "Repos 2min entre series";
+const REST_B  = "Repos 60-90sec entre series";
+const REST_C  = "Minimal rest (for time)";
+const NOTE_ISO_321 = "3.3.3 = 3 reps de 3sec tenues, 3sec de repos entre chaque rep";
+const NOTE_ISO_3321 = "3.3.3.3 = 4 reps de 3sec tenues, 3sec de repos entre chaque rep";
+const NOTE_CMJ_RESET = "1.1.1.1.1 = 5 reps avec reset complet entre chaque saut";
+const NOTE_BAL_2 = "2.2.2 = 3 reps avec reset complet entre chaque rep";
+
 const MAIN = {
-  "A|base":[["A1","ISO Belt Squat","4x 3.3.3sec @ 100% Effort","DtljSf27VGU"],
-            ["A2","Countermovement Jump (CMJ)","4x 1.1.1.1.1","TbAic5H2WHY"],
-            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x6reps, pause au sommet /2reps","BxIWWiKfDxU"],
-            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4"],
-            ["B3","Plank on hands","5x45sec","gXcOuIMfEUQ"],
-            ["C1","Hamstring curl","100reps for time","6uE3CaV27FY"]],
-  "A|prog":[["A1","ISO Belt Squat","4x 3.3.3.3sec @ 100% Effort","DtljSf27VGU"],
-            ["A2","Countermovement Jump (CMJ)","4x 3 reps consec.","OBOZSyTmoSs"],
-            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x8reps, pause au sommet /2reps","BxIWWiKfDxU"],
-            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4"],
-            ["B3","Plank on hands","5x60sec","gXcOuIMfEUQ"],
-            ["C1","Hamstring curl","120reps for time","6uE3CaV27FY"]],
-  "B|base":[["A1","ISO bottom push up push","4x 3.3.3sec @ 100% Effort","sGUOB8umVUY"],
-            ["A2","Clap push-ups","4x 2.2.2","VRJc4UwiV_4"],
-            ["B1","Good Morning + RDL","3-3 tempo, 5x6reps, pause au bas /2reps","RTjs5vS22dM"],
-            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q"],
-            ["B3","Hamstring bridge","5x45sec","1sdcq47MuXs"],
-            ["C1","Biceps curl","100reps for time","Dfc4vWo3F2A"]],
-  "B|prog":[["A1","ISO bottom push up push","4x 3.3.3.3sec @ 100% Effort","sGUOB8umVUY"],
-            ["A2","Clap push-ups","4x 4 reps consec.","VRJc4UwiV_4"],
-            ["B1","Good Morning + RDL","3-3 tempo, 5x8reps, pause au bas /2reps","RTjs5vS22dM"],
-            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q"],
-            ["B3","Hamstring bridge","5x60sec","1sdcq47MuXs"],
-            ["C1","Biceps curl","120reps for time","Dfc4vWo3F2A"]],
-  "C|base":[["A1","ISO Deadlift","4x 3.3.3sec @ 100% Effort","n6Xr-O5WiLI"],
-            ["A2","Broad jump","4x 1.1.1.1.1","Dtw5wkKQ6jc"],
-            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc"],
-            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc"],
-            ["B3","Chin up hold ou Seated Row hold (supinated)","5x10-30sec ou 45sec",""],
-            ["C1","Squat jump","75reps for time","y8pzmtfjvn4"]],
-  "C|prog":[["A1","ISO Deadlift","4x 3.3.3.3sec @ 100% Effort","n6Xr-O5WiLI"],
-            ["A2","Broad jump","4x 3 reps consec.","Dtw5wkKQ6jc"],
-            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc"],
-            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc"],
-            ["B3","Chin up hold ou Seated Row hold (supinated)","5x15-45sec ou 60sec",""],
-            ["C1","Squat jump","100reps for time","y8pzmtfjvn4"]],
-  "D|base":[["A1","ISO Seated Row","4x 3.3.3sec @ 100% Effort","jWHspk2SlEc"],
-            ["A2","Bent over row for speed","4x 2.2.2","EF40RDUEm94"],
-            ["B1","Cyclist squat","3-3 tempo, 5x6reps, pause au bas /2reps","tTjGEAWO7Uc"],
-            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0"],
-            ["B3","Wall sit","5x45sec","n6YcAq_vFo4"],
-            ["C1","Banded overhead triceps extension","100reps for time","39U1UBLHj7Q"]],
-  "D|prog":[["A1","ISO Seated Row","4x 3.3.3.3sec @ 100% Effort","jWHspk2SlEc"],
-            ["A2","Bent over row for speed","4x 4 reps consec.","EF40RDUEm94"],
-            ["B1","Zercher Cyclist squat","3-3 tempo, 5x8reps, pause au bas /2reps","tTjGEAWO7Uc"],
-            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0"],
-            ["B3","Wall sit","5x60sec","n6YcAq_vFo4"],
-            ["C1","Banded overhead triceps extension","120reps for time","39U1UBLHj7Q"]],
+  "A|base":[["A1","ISO Belt Squat","4x 3.3.3sec @ 100% Effort","DtljSf27VGU",REST_A1,NOTE_ISO_321],
+            ["A2","Countermovement Jump (CMJ)","4x 1.1.1.1.1","TbAic5H2WHY",REST_A2,NOTE_CMJ_RESET],
+            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x6reps, pause au sommet /2reps","BxIWWiKfDxU",REST_B,""],
+            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4",REST_B,""],
+            ["B3","Plank on hands","5x45sec","gXcOuIMfEUQ",REST_B,""],
+            ["C1","Hamstring curl","100reps for time","6uE3CaV27FY",REST_C,""]],
+  "A|prog":[["A1","ISO Belt Squat","4x 3.3.3.3sec @ 100% Effort","DtljSf27VGU",REST_A1,NOTE_ISO_3321],
+            ["A2","Countermovement Jump (CMJ)","4x 3 reps consec.","OBOZSyTmoSs",REST_A2,""],
+            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x8reps, pause au sommet /2reps","BxIWWiKfDxU",REST_B,""],
+            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4",REST_B,""],
+            ["B3","Plank on hands","5x60sec","gXcOuIMfEUQ",REST_B,""],
+            ["C1","Hamstring curl","120reps for time","6uE3CaV27FY",REST_C,""]],
+  "B|base":[["A1","ISO bottom push up push","4x 3.3.3sec @ 100% Effort","sGUOB8umVUY",REST_A1,NOTE_ISO_321],
+            ["A2","Clap push-ups","4x 2.2.2","VRJc4UwiV_4",REST_A2,NOTE_BAL_2],
+            ["B1","Good Morning + RDL","3-3 tempo, 5x6reps, pause au bas /2reps","RTjs5vS22dM",REST_B,""],
+            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q",REST_B,""],
+            ["B3","Hamstring bridge","5x45sec","1sdcq47MuXs",REST_B,""],
+            ["C1","Biceps curl","100reps for time","Dfc4vWo3F2A",REST_C,""]],
+  "B|prog":[["A1","ISO bottom push up push","4x 3.3.3.3sec @ 100% Effort","sGUOB8umVUY",REST_A1,NOTE_ISO_3321],
+            ["A2","Clap push-ups","4x 4 reps consec.","VRJc4UwiV_4",REST_A2,""],
+            ["B1","Good Morning + RDL","3-3 tempo, 5x8reps, pause au bas /2reps","RTjs5vS22dM",REST_B,""],
+            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q",REST_B,""],
+            ["B3","Hamstring bridge","5x60sec","1sdcq47MuXs",REST_B,""],
+            ["C1","Biceps curl","120reps for time","Dfc4vWo3F2A",REST_C,""]],
+  "C|base":[["A1","ISO Deadlift","4x 3.3.3sec @ 100% Effort","n6Xr-O5WiLI",REST_A1,NOTE_ISO_321],
+            ["A2","Broad jump","4x 1.1.1.1.1","Dtw5wkKQ6jc",REST_A2,NOTE_CMJ_RESET],
+            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc",REST_B,""],
+            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc",REST_B,""],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x10-30sec ou 45sec","",REST_B,""],
+            ["C1","Squat jump","75reps for time","y8pzmtfjvn4",REST_C,""]],
+  "C|prog":[["A1","ISO Deadlift","4x 3.3.3.3sec @ 100% Effort","n6Xr-O5WiLI",REST_A1,NOTE_ISO_3321],
+            ["A2","Broad jump","4x 3 reps consec.","Dtw5wkKQ6jc",REST_A2,""],
+            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc",REST_B,""],
+            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc",REST_B,""],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x15-45sec ou 60sec","",REST_B,""],
+            ["C1","Squat jump","100reps for time","y8pzmtfjvn4",REST_C,""]],
+  "D|base":[["A1","ISO Seated Row","4x 3.3.3sec @ 100% Effort","jWHspk2SlEc",REST_A1,NOTE_ISO_321],
+            ["A2","Bent over row for speed","4x 2.2.2","EF40RDUEm94",REST_A2,NOTE_BAL_2],
+            ["B1","Cyclist squat","3-3 tempo, 5x6reps, pause au bas /2reps","tTjGEAWO7Uc",REST_B,""],
+            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0",REST_B,""],
+            ["B3","Wall sit","5x45sec","n6YcAq_vFo4",REST_B,""],
+            ["C1","Banded overhead triceps extension","100reps for time","39U1UBLHj7Q",REST_C,""]],
+  "D|prog":[["A1","ISO Seated Row","4x 3.3.3.3sec @ 100% Effort","jWHspk2SlEc",REST_A1,NOTE_ISO_3321],
+            ["A2","Bent over row for speed","4x 4 reps consec.","EF40RDUEm94",REST_A2,""],
+            ["B1","Zercher Cyclist squat","3-3 tempo, 5x8reps, pause au bas /2reps","tTjGEAWO7Uc",REST_B,""],
+            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0",REST_B,""],
+            ["B3","Wall sit","5x60sec","n6YcAq_vFo4",REST_B,""],
+            ["C1","Banded overhead triceps extension","120reps for time","39U1UBLHj7Q",REST_C,""]],
 };
 
 const ENDURANCE = {
@@ -252,16 +273,16 @@ const SPEED_DRILLS = [
   ["Straight leg bounds","ozPlaMxcic0"]
 ];
 const SPEED = {
-  1: {name:"SPEED + METCON 1", drill:"Drill 10m (2-3x chaque)", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
+  1: {name:"SPEED + METCON 1", drill:"Drill 10m (2-3x chaque)", accelflysLabel:"Flys", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
       metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (reprendre ou on s'est arrete)",
       metcon:[["30 Double unders",""],["15 No push-ups burpees tuck jump","BYv3X9nxxvU"],["30 Double unders",""],["30 Sit-ups","HeC_JaUjs8U"]]},
-  2: {name:"SPEED + METCON 2", drill:"Drill 15m (1-2x chaque)", accelflys:"Acceleration : 10m sprint toutes les 100sec x8",
+  2: {name:"SPEED + METCON 2", drill:"Drill 15m (1-2x chaque)", accelflysLabel:"Acceleration", accelflys:"Acceleration : 10m sprint toutes les 100sec x8",
       metconFormat:"Amrap 20min, dans l'ordre",
       metcon:[["200m Run",""],["20 Push-ups",""],["200m Run",""],["20 Reverse lunges","SPWIJlYbtEM"]]},
-  3: {name:"SPEED + METCON 3", drill:"Drill 15m (1-2x chaque)", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
+  3: {name:"SPEED + METCON 3", drill:"Drill 15m (1-2x chaque)", accelflysLabel:"Flys", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
       metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (reprendre ou on s'est arrete)",
       metcon:[["50 Double unders",""],["25 Burpees","yp-_6HFm5DA"],["50 Double unders",""],["25 V-ups","VHNDOBJ7m3I"]]},
-  4: {name:"SPEED + METCON 4", drill:"Drill 20m (1-2x chaque)", accelflys:"Acceleration : 15m sprint toutes les 100sec x8",
+  4: {name:"SPEED + METCON 4", drill:"Drill 20m (1-2x chaque)", accelflysLabel:"Acceleration", accelflys:"Acceleration : 15m sprint toutes les 100sec x8",
       metconFormat:"Amrap 20min, dans l'ordre",
       metcon:[["400m Run",""],["20 Push-ups with bottle slide","Zq6P67w9fdw"],["400m Run",""],["20 Jumping lunges","oetsq6VZHq4"]]},
 };
@@ -279,7 +300,7 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
-function exoRow(bloc, name, detail, vid) {
+function exoRow(bloc, name, detail, vid, rest, note) {
   const nameSafe = escapeHtml(name);
   const detailSafe = escapeHtml(detail || "");
   const nameHtml = vid
@@ -288,7 +309,9 @@ function exoRow(bloc, name, detail, vid) {
   const detailHtml = vid
     ? '<div class="detail">' + detailSafe + '</div>'
     : '<div class="detail pending">' + (detailSafe ? detailSafe + "  " : "") + '[video a venir]</div>';
-  return '<div class="exo"><div class="bloc">' + escapeHtml(bloc || "") + '</div><div class="body"><div class="name">' + nameHtml + '</div>' + detailHtml + '</div></div>';
+  const restHtml = rest ? '<div class="rest">' + escapeHtml(rest) + '</div>' : '';
+  const noteHtml = note ? '<div class="note">' + escapeHtml(note) + '</div>' : '';
+  return '<div class="exo"><div class="bloc">' + escapeHtml(bloc || "") + '</div><div class="body"><div class="name">' + nameHtml + '</div>' + detailHtml + restHtml + noteHtml + '</div></div>';
 }
 
 function renderStrength(letter, variant) {
@@ -304,18 +327,19 @@ function renderStrength(letter, variant) {
   let html = '<div class="session s-' + letter + '">' +
              '<h2>Strength ' + letter + ' ' + variantTag + '</h2>' +
              '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>';
-  mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+  mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
     html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>';
-    blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+    blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocB.length) {
-    html += '<div class="subhead bloc-B">Force-endurance (tempo)</div>';
-    blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+    html += '<div class="subhead bloc-B">Force-endurance (tempo)</div>' +
+            '<div class="bloc-note">A faire dans l\'ordre : toutes les series de B1 d\'abord, puis toutes les series de B2, puis toutes les series de B3. Ce n\'est pas un circuit.</div>';
+    blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocC.length) {
-    html += '<div class="subhead bloc-C">Endurance locale (Amrap)</div>';
-    blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+    html += '<div class="subhead bloc-C">Finisher (for time)</div>';
+    blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   html += '</div>';
   return html;
@@ -323,21 +347,24 @@ function renderStrength(letter, variant) {
 
 function renderEndurance(idx) {
   const e = ENDURANCE[idx];
-  return '<div class="session endurance"><h2>Endurance</h2>' + exoRow("", e.name, e.detail, "") + '</div>';
+  return '<div class="session endurance"><h2>Endurance</h2>' + exoRow("", e.name, e.detail, "", "", "") + '</div>';
 }
 
 function renderDensity(d) {
   let html = '<div class="meta-line">' + d.rounds + ', Amrap ' + d.amrap + ' par poste - ' + d.rest + '</div>';
-  DENSITY_STATIONS.forEach(s => html += exoRow("", s[0], "Amrap " + d.amrap, s[1]));
+  DENSITY_STATIONS.forEach(s => html += exoRow("", s[0], "Amrap " + d.amrap, s[1], "", ""));
   return html;
 }
 
 function renderSpeed(s) {
-  let html = '<div class="meta-line">' + s.drill + ' - puis ' + s.accelflys + '</div>';
-  html += '<div class="subhead">Drills techniques</div>';
-  SPEED_DRILLS.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1]));
-  html += '<div class="subhead">Metcon - ' + s.metconFormat + '</div>';
-  s.metcon.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1]));
+  let html = '<div class="subhead">Drills techniques (echauffement specifique)</div>';
+  html += '<div class="bloc-note">' + escapeHtml(s.drill) + '</div>';
+  SPEED_DRILLS.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1], "", ""));
+  html += '<div class="subhead bloc-speed-main">Travail principal - ' + escapeHtml(s.accelflysLabel || "Flys / Acceleration") + '</div>' +
+          '<div class="bloc-note">' + escapeHtml(s.accelflys) + '</div>';
+  html += '<div class="subhead bloc-metcon">Metcon</div>' +
+          '<div class="bloc-note">' + escapeHtml(s.metconFormat) + '</div>';
+  s.metcon.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1], "", ""));
   return html;
 }
 
@@ -345,7 +372,18 @@ function renderDay5(week) {
   const cfg = WEEKS[week];
   const d = DENSITY[cfg.density];
   const s = SPEED[cfg.speed];
+  const helpText =
+    '<div class="day5-help">' +
+      '<strong>Jour 5 - a toi de choisir.</strong> Cette journee s\'adapte a ton etat du moment et a ton contexte.' +
+      '<ul>' +
+        '<li><strong>Density</strong> ajoute du conditionnement musculaire. A privilegier si tu veux du travail supplementaire mais que tu n\'as ni l\'espace ni l\'envie de sprinter.</li>' +
+        '<li><strong>Speed + Metcon</strong> travaille la vitesse, la puissance et le cardio. A privilegier si tu te sens frais et que tu as acces a un sol stable et plat.</li>' +
+        '<li><strong>Rest</strong> est un vrai choix d\'entrainement, pas un echec. A privilegier en cas de fatigue, courbatures inhabituelles, mauvais sommeil ou journee de transport.</li>' +
+      '</ul>' +
+      'En cas de doute, choisis Rest plutot qu\'une seance baclee.' +
+    '</div>';
   return '<div class="session day5"><h2>Jour 5 - au choix</h2>' +
+    helpText +
     '<div class="option-tabs">' +
       '<button class="pill ' + (state.option==='density'?'active':'') + '" data-opt="density">Option 1 - ' + d.name + '</button>' +
       '<button class="pill ' + (state.option==='speed'?'active':'') + '" data-opt="speed">Option 2 - ' + s.name + '</button>' +
