@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beglorious Band - Programme</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --link: #1155cc;
+    --pending: #9c5700;
+    --pending-bg: #fff2cc;
+
+    /* Couleur header global */
+    --brand: #111827;
+
+    /* Strength A : bleu nuit profond */
+    --strA-strong: #1e3a5f;
+    --strA-soft: #d6e2f0;
+
+    /* Strength B : bleu acier */
+    --strB-strong: #2c5282;
+    --strB-soft: #d7e3f1;
+
+    /* Strength C : bleu pétrole */
+    --strC-strong: #1d4f63;
+    --strC-soft: #d4e4ea;
+
+    /* Strength D : bleu ardoise */
+    --strD-strong: #3a4d6b;
+    --strD-soft: #dbe0ea;
+
+    /* Endurance : vert teal/sapin */
+    --end-strong: #0f766e;
+    --end-soft: #d2eae6;
+
+    /* Jour 5 famille orange/accent */
+    --j5-strong: #c2410c;
+    --j5-soft: #fde4d3;
+    --speed-strong: #d97706;
+    --speed-soft: #fdecc7;
+    --rest-strong: #6b7280;
+    --rest-soft: #e5e7eb;
+
+    /* Bloc C "finisher" : ton chaud commun à toutes les Strength */
+    --finisher-soft: #fde4d3;
+    --finisher-strong: #c2410c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  header { background: var(--brand); color: white; padding: 14px 18px; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+  header h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: .2px; }
+  header .sub { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+  .controls { display: flex; gap: 8px; padding: 12px 14px; background: white; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .pill { border: 1px solid var(--line); background: white; color: var(--ink); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .pill.active { background: var(--brand); color: white; border-color: var(--brand); }
+  .pill:hover:not(.active) { background: #f3f4f6; }
+
+  main { padding: 14px; max-width: 800px; margin: 0 auto; }
+  .day-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .day-tabs .pill { font-size: 12px; padding: 6px 12px; }
+  .day-tabs .pill.active { background: #374151; border-color: #374151; }
+
+  .session { background: var(--card); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 14px; }
+  .session h2 { margin: 0; padding: 12px 16px; color: white; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .session h2 .tag { font-size: 10px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; opacity: .85; background: rgba(255,255,255,.18); padding: 2px 6px; border-radius: 4px; }
+  .subhead { padding: 8px 16px; font-size: 12px; font-weight: 600; }
+
+  /* Strength variants */
+  .session.s-A h2 { background: var(--strA-strong); }
+  .session.s-A .subhead { background: var(--strA-soft); color: var(--strA-strong); }
+  .session.s-B h2 { background: var(--strB-strong); }
+  .session.s-B .subhead { background: var(--strB-soft); color: var(--strB-strong); }
+  .session.s-C h2 { background: var(--strC-strong); }
+  .session.s-C .subhead { background: var(--strC-soft); color: var(--strC-strong); }
+  .session.s-D h2 { background: var(--strD-strong); }
+  .session.s-D .subhead { background: var(--strD-soft); color: var(--strD-strong); }
+
+  /* Bloc-specific subhead overrides (within Strength) */
+  .session .subhead.bloc-prep { opacity: .92; }
+  .session .subhead.bloc-A::before { content: "Bloc A - "; font-weight: 700; }
+  .session .subhead.bloc-B::before { content: "Bloc B - "; font-weight: 700; }
+  .session .subhead.bloc-C { background: var(--finisher-soft); color: var(--finisher-strong); }
+  .session .subhead.bloc-C::before { content: "Bloc C - "; font-weight: 700; }
+
+  /* Endurance */
+  .session.endurance h2 { background: var(--end-strong); }
+  .session.endurance .subhead { background: var(--end-soft); color: var(--end-strong); }
+
+  /* Jour 5 */
+  .session.day5 h2 { background: var(--j5-strong); }
+  .session.day5 .subhead { background: var(--j5-soft); color: var(--j5-strong); }
+  .session.day5 .option-tabs .pill.active[data-opt="density"] { background: var(--j5-strong); border-color: var(--j5-strong); color: white; }
+  .session.day5 .option-tabs .pill.active[data-opt="speed"] { background: var(--speed-strong); border-color: var(--speed-strong); color: white; }
+  .session.day5 .option-tabs .pill.active[data-opt="rest"] { background: var(--rest-strong); border-color: var(--rest-strong); color: white; }
+  .session.day5 .option-panel[data-panel="speed"] .subhead { background: var(--speed-soft); color: var(--speed-strong); }
+  .session.day5 .option-panel[data-panel="rest"] .meta-line { background: var(--rest-soft); color: var(--ink); }
+
+  .exo { display: grid; grid-template-columns: 36px 1fr; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--line); align-items: baseline; }
+  .exo .bloc { color: var(--muted); font-size: 11px; font-weight: 600; padding-top: 2px; }
+  .exo .body { font-size: 14px; line-height: 1.4; }
+  .exo .name a { color: var(--link); text-decoration: none; font-weight: 500; }
+  .exo .name a:hover { text-decoration: underline; }
+  .exo .name .noplay { color: var(--ink); font-weight: 500; }
+  .exo .detail { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .exo .detail.pending { color: var(--pending); font-style: italic; }
+
+  .option-tabs { display: flex; gap: 6px; padding: 0 16px 12px; flex-wrap: wrap; }
+  .option-tabs .pill { font-size: 12px; padding: 5px 12px; }
+  .option-panel { display: none; }
+  .option-panel.active { display: block; }
+
+  .meta-line { padding: 8px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); background: #fafbfc; }
+
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
+  .modal.open { display: flex; }
+  .modal-inner { background: black; border-radius: 8px; max-width: 540px; width: 100%; aspect-ratio: 9/16; max-height: 90vh; position: relative; }
+  .modal-close { position: absolute; top: -36px; right: 0; background: white; border: none; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; font-weight: 600; }
+  .modal iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; }
+
+  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Beglorious Band</h1>
+  <div class="sub">Programme 4 semaines - usage test interne</div>
+</header>
+<div class="controls" id="weekTabs"></div>
+<main>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div id="content"></div>
+</main>
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">x</button>
+    <iframe id="modalFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+<footer>Visionneuse autonome. Aucun envoi de donnees. Videos hebergees sur YouTube.</footer>
+
+<script>
+const YT = id => "https://www.youtube.com/watch?v=" + id;
+const YTEmbed = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&playsinline=1";
+
+const MOB = {
+  A: [["","Hips stretch pulse arms overhead","60/60sec","6cFenAtViP4"],
+      ["","Standing Hip Axials","1x5/5","s1ZZJGeSXII"],
+      ["","Air Squat - lunges complex","5reps","3XSO8VgoUOk"],
+      ["","Band Pull-Apart","12reps","nd5bwD7XAQ0"],
+      ["","Deadbug","10/side","zYRYTwZfa44"]],
+  B: [["","Pecs stretch pulse","60/60sec","WkxGHfKs5qs"],
+      ["","Quadruped Shoulder CARs","1x5/5","M46HamST2bw"],
+      ["","Inchworm to Plank shoulder taps","5reps","xpYhUzniWjM"],
+      ["","Banded Chest press","10reps","Aqg4h2Y2otY"],
+      ["","Birddog","10/side","QtgsKPr3W8M"]],
+  C: [["","Half kneeling Hamstring stretch","60/60sec","VyW5Mm1TVUY"],
+      ["","Standing Hip Axials","1x5/5","s1ZZJGeSXII"],
+      ["","Kang squat","5reps","dIdCrzmiBzw"],
+      ["","Band Pull-Apart","12reps","nd5bwD7XAQ0"],
+      ["","Side plank rotation","10/side","P5Zm0r4hFGg"]],
+  D: [["","Downward dog pulse","60sec","WqSiaYSYJFE"],
+      ["","Quadruped Shoulder CARs","1x5/5","M46HamST2bw"],
+      ["","Seated row to W to Y to eccentric","5reps","iZYICUQyavs"],
+      ["","Commando plank","10reps","Np-nXxJ_t_w"],
+      ["","Banded Chest press","10reps","Aqg4h2Y2otY"]],
+};
+
+const MAIN = {
+  "A|base":[["A1","ISO Belt Squat","4x 3.3.3sec @ 100% Effort","DtljSf27VGU"],
+            ["A2","Countermovement Jump (CMJ)","4x 1.1.1.1.1","TbAic5H2WHY"],
+            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x6reps, pause au sommet /2reps","BxIWWiKfDxU"],
+            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4"],
+            ["B3","Plank on hands","5x45sec","gXcOuIMfEUQ"],
+            ["C1","Hamstring curl","100reps for time","6uE3CaV27FY"]],
+  "A|prog":[["A1","ISO Belt Squat","4x 3.3.3.3sec @ 100% Effort","DtljSf27VGU"],
+            ["A2","Countermovement Jump (CMJ)","4x 3 reps consec.","OBOZSyTmoSs"],
+            ["B1","Bench Bridge Press (Band)","3-3 tempo, 5x8reps, pause au sommet /2reps","BxIWWiKfDxU"],
+            ["B2","Seated lat raise","5x10reps","wTsmriTEyA4"],
+            ["B3","Plank on hands","5x60sec","gXcOuIMfEUQ"],
+            ["C1","Hamstring curl","120reps for time","6uE3CaV27FY"]],
+  "B|base":[["A1","ISO bottom push up push","4x 3.3.3sec @ 100% Effort","sGUOB8umVUY"],
+            ["A2","Clap push-ups","4x 2.2.2","VRJc4UwiV_4"],
+            ["B1","Good Morning + RDL","3-3 tempo, 5x6reps, pause au bas /2reps","RTjs5vS22dM"],
+            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q"],
+            ["B3","Hamstring bridge","5x45sec","1sdcq47MuXs"],
+            ["C1","Biceps curl","100reps for time","Dfc4vWo3F2A"]],
+  "B|prog":[["A1","ISO bottom push up push","4x 3.3.3.3sec @ 100% Effort","sGUOB8umVUY"],
+            ["A2","Clap push-ups","4x 4 reps consec.","VRJc4UwiV_4"],
+            ["B1","Good Morning + RDL","3-3 tempo, 5x8reps, pause au bas /2reps","RTjs5vS22dM"],
+            ["B2","Back Rack stepups","5x10/10","KENpTlHM1_Q"],
+            ["B3","Hamstring bridge","5x60sec","1sdcq47MuXs"],
+            ["C1","Biceps curl","120reps for time","Dfc4vWo3F2A"]],
+  "C|base":[["A1","ISO Deadlift","4x 3.3.3sec @ 100% Effort","n6Xr-O5WiLI"],
+            ["A2","Broad jump","4x 1.1.1.1.1","Dtw5wkKQ6jc"],
+            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc"],
+            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc"],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x10-30sec ou 45sec",""],
+            ["C1","Squat jump","75reps for time","y8pzmtfjvn4"]],
+  "C|prog":[["A1","ISO Deadlift","4x 3.3.3.3sec @ 100% Effort","n6Xr-O5WiLI"],
+            ["A2","Broad jump","4x 3 reps consec.","Dtw5wkKQ6jc"],
+            ["B1","Seated pull down (Band)","3-3 tempo, 5x6reps, pause au bas /2reps","aWQuAAWwOUc"],
+            ["B2","Seated face pull","5x10reps","z3CeLd2oJkc"],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x15-45sec ou 60sec",""],
+            ["C1","Squat jump","100reps for time","y8pzmtfjvn4"]],
+  "D|base":[["A1","ISO Seated Row","4x 3.3.3sec @ 100% Effort","jWHspk2SlEc"],
+            ["A2","Bent over row for speed","4x 2.2.2","EF40RDUEm94"],
+            ["B1","Cyclist squat","3-3 tempo, 5x6reps, pause au bas /2reps","tTjGEAWO7Uc"],
+            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0"],
+            ["B3","Wall sit","5x45sec","n6YcAq_vFo4"],
+            ["C1","Banded overhead triceps extension","100reps for time","39U1UBLHj7Q"]],
+  "D|prog":[["A1","ISO Seated Row","4x 3.3.3.3sec @ 100% Effort","jWHspk2SlEc"],
+            ["A2","Bent over row for speed","4x 4 reps consec.","EF40RDUEm94"],
+            ["B1","Zercher Cyclist squat","3-3 tempo, 5x8reps, pause au bas /2reps","tTjGEAWO7Uc"],
+            ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0"],
+            ["B3","Wall sit","5x60sec","n6YcAq_vFo4"],
+            ["C1","Banded overhead triceps extension","120reps for time","39U1UBLHj7Q"]],
+};
+
+const ENDURANCE = {
+  1: {name:"Explore Run", detail:"30-60min, allure facile"},
+  2: {name:"Run structure", detail:"10min easy / repos 2min / 10x(2min @5k pace RPE7-8 + 1min repos) / repos 2min / 10min easy"},
+  3: {name:"Explore Run", detail:"30-60min, allure facile"},
+  4: {name:"Run structure", detail:"10min easy / repos 2min / 8x(3min @5k pace RPE7-8 + 1min repos) / repos 2min / 10min easy"},
+  5: {name:"Explore Run", detail:"30-60min, allure facile"},
+  6: {name:"Run structure", detail:"10min easy / repos 2min / 6x(4min @5k pace RPE7-8 + 1min repos) / repos 2min / 10min easy"},
+  7: {name:"Explore Run", detail:"30-60min, allure facile"},
+  8: {name:"5K", detail:"Chronometre"},
+};
+
+const DENSITY_STATIONS = [
+  ["A- Zercher Sumo Squat","_EQ7Bv8oRdo"],
+  ["B- Push-ups",""],
+  ["C- Back Squat","Uy6FnHnqNX0"],
+  ["D- Seated High Row / Bent Over X Row","MNsZrFJESZ8"],
+];
+const DENSITY = {
+  1: {name:"Density 1", rounds:"4 rounds", amrap:"1min", rest:"repos 1min entre exercices, repos 3min entre rounds"},
+  2: {name:"Density 2", rounds:"3 rounds", amrap:"2min", rest:"repos 1min entre exercices, repos 3min entre rounds"},
+  3: {name:"Density 3", rounds:"3 rounds", amrap:"3min", rest:"repos 1min entre exercices, repos 3min entre rounds"},
+  4: {name:"Density 4", rounds:"1 round",  amrap:"5min", rest:"repos 1min entre exercices"},
+};
+
+const SPEED_DRILLS = [
+  ["Pogo Hops Forward","A35hlZlWLV0"],["Pogo Hops Backward","UsBwjXJHa6o"],["A-Skip","H2F7yAbiSHk"],
+  ["Butt-Kick","mPD8O7KTVAc"],["High-Knee","Y72Cm66ssrc"],["Single Switches","e64OQkpGPi4"],
+  ["Straight leg bounds","ozPlaMxcic0"]
+];
+const SPEED = {
+  1: {name:"SPEED + METCON 1", drill:"Drill 10m (2-3x chaque)", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
+      metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (reprendre ou on s'est arrete)",
+      metcon:[["30 Double unders",""],["15 No push-ups burpees tuck jump","BYv3X9nxxvU"],["30 Double unders",""],["30 Sit-ups","HeC_JaUjs8U"]]},
+  2: {name:"SPEED + METCON 2", drill:"Drill 15m (1-2x chaque)", accelflys:"Acceleration : 10m sprint toutes les 100sec x8",
+      metconFormat:"Amrap 20min, dans l'ordre",
+      metcon:[["200m Run",""],["20 Push-ups",""],["200m Run",""],["20 Reverse lunges","SPWIJlYbtEM"]]},
+  3: {name:"SPEED + METCON 3", drill:"Drill 15m (1-2x chaque)", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
+      metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (reprendre ou on s'est arrete)",
+      metcon:[["50 Double unders",""],["25 Burpees","yp-_6HFm5DA"],["50 Double unders",""],["25 V-ups","VHNDOBJ7m3I"]]},
+  4: {name:"SPEED + METCON 4", drill:"Drill 20m (1-2x chaque)", accelflys:"Acceleration : 15m sprint toutes les 100sec x8",
+      metconFormat:"Amrap 20min, dans l'ordre",
+      metcon:[["400m Run",""],["20 Push-ups with bottle slide","Zq6P67w9fdw"],["400m Run",""],["20 Jumping lunges","oetsq6VZHq4"]]},
+};
+
+const WEEKS = {
+  1: {strDay1:["A","base"], strDay3:["B","base"], endIdx:1, density:1, speed:1},
+  2: {strDay1:["C","base"], strDay3:["D","base"], endIdx:3, density:2, speed:2},
+  3: {strDay1:["A","prog"], strDay3:["B","prog"], endIdx:5, density:3, speed:3},
+  4: {strDay1:["C","prog"], strDay3:["D","prog"], endIdx:7, density:4, speed:4},
+};
+
+let state = { week: 1, day: 1, option: "density" };
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function exoRow(bloc, name, detail, vid) {
+  const nameSafe = escapeHtml(name);
+  const detailSafe = escapeHtml(detail || "");
+  const nameHtml = vid
+    ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + nameSafe + '</a>'
+    : '<span class="noplay">' + nameSafe + '</span>';
+  const detailHtml = vid
+    ? '<div class="detail">' + detailSafe + '</div>'
+    : '<div class="detail pending">' + (detailSafe ? detailSafe + "  " : "") + '[video a venir]</div>';
+  return '<div class="exo"><div class="bloc">' + escapeHtml(bloc || "") + '</div><div class="body"><div class="name">' + nameHtml + '</div>' + detailHtml + '</div></div>';
+}
+
+function renderStrength(letter, variant) {
+  const mob = MOB[letter];
+  const main = MAIN[letter + "|" + variant];
+  const variantTag = variant === "prog" ? '<span class="tag">progresse</span>' : '<span class="tag">base</span>';
+
+  // Split main block by family (A* / B* / C*) so subheads get the right color
+  const blocA = main.filter(r => r[0].startsWith("A"));
+  const blocB = main.filter(r => r[0].startsWith("B"));
+  const blocC = main.filter(r => r[0].startsWith("C"));
+
+  let html = '<div class="session s-' + letter + '">' +
+             '<h2>Strength ' + letter + ' ' + variantTag + '</h2>' +
+             '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>';
+  mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+  if (blocA.length) {
+    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>';
+    blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+  }
+  if (blocB.length) {
+    html += '<div class="subhead bloc-B">Force-endurance (tempo)</div>';
+    blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+  }
+  if (blocC.length) {
+    html += '<div class="subhead bloc-C">Endurance locale (Amrap)</div>';
+    blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3]));
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderEndurance(idx) {
+  const e = ENDURANCE[idx];
+  return '<div class="session endurance"><h2>Endurance</h2>' + exoRow("", e.name, e.detail, "") + '</div>';
+}
+
+function renderDensity(d) {
+  let html = '<div class="meta-line">' + d.rounds + ', Amrap ' + d.amrap + ' par poste - ' + d.rest + '</div>';
+  DENSITY_STATIONS.forEach(s => html += exoRow("", s[0], "Amrap " + d.amrap, s[1]));
+  return html;
+}
+
+function renderSpeed(s) {
+  let html = '<div class="meta-line">' + s.drill + ' - puis ' + s.accelflys + '</div>';
+  html += '<div class="subhead">Drills techniques</div>';
+  SPEED_DRILLS.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1]));
+  html += '<div class="subhead">Metcon - ' + s.metconFormat + '</div>';
+  s.metcon.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1]));
+  return html;
+}
+
+function renderDay5(week) {
+  const cfg = WEEKS[week];
+  const d = DENSITY[cfg.density];
+  const s = SPEED[cfg.speed];
+  return '<div class="session day5"><h2>Jour 5 - au choix</h2>' +
+    '<div class="option-tabs">' +
+      '<button class="pill ' + (state.option==='density'?'active':'') + '" data-opt="density">Option 1 - ' + d.name + '</button>' +
+      '<button class="pill ' + (state.option==='speed'?'active':'') + '" data-opt="speed">Option 2 - ' + s.name + '</button>' +
+      '<button class="pill ' + (state.option==='rest'?'active':'') + '" data-opt="rest">Option 3 - Rest</button>' +
+    '</div>' +
+    '<div class="option-panel ' + (state.option==='density'?'active':'') + '" data-panel="density">' + renderDensity(d) + '</div>' +
+    '<div class="option-panel ' + (state.option==='speed'?'active':'') + '" data-panel="speed">' + renderSpeed(s) + '</div>' +
+    '<div class="option-panel ' + (state.option==='rest'?'active':'') + '" data-panel="rest"><div class="meta-line">Repos complet.</div></div>' +
+  '</div>';
+}
+
+function render() {
+  const cfg = WEEKS[state.week];
+  let html = "";
+  if (state.day === 1) html = renderStrength(cfg.strDay1[0], cfg.strDay1[1]);
+  else if (state.day === 2) html = renderEndurance(cfg.endIdx);
+  else if (state.day === 3) html = renderStrength(cfg.strDay3[0], cfg.strDay3[1]);
+  else if (state.day === 4) html = renderEndurance(cfg.endIdx + 1);
+  else if (state.day === 5) html = renderDay5(state.week);
+  document.getElementById("content").innerHTML = html;
+  bindLinks();
+  bindOptionTabs();
+}
+
+function renderTabs() {
+  const wt = document.getElementById("weekTabs");
+  wt.innerHTML = "";
+  for (let w = 1; w <= 4; w++) {
+    const b = document.createElement("button");
+    b.className = "pill" + (state.week===w?" active":"");
+    b.textContent = "Semaine " + w;
+    b.onclick = () => { state.week = w; renderTabs(); render(); };
+    wt.appendChild(b);
+  }
+}
+
+function renderDayTabs() {
+  const dt = document.getElementById("dayTabs");
+  dt.innerHTML = "";
+  const labels = ["Jour 1 - Strength", "Jour 2 - Endurance", "Jour 3 - Strength", "Jour 4 - Endurance", "Jour 5 - au choix"];
+  labels.forEach((lbl, i) => {
+    const d = i + 1;
+    const b = document.createElement("button");
+    b.className = "pill" + (state.day===d?" active":"");
+    b.textContent = lbl;
+    b.onclick = () => { state.day = d; renderDayTabs(); render(); };
+    dt.appendChild(b);
+  });
+}
+
+function bindLinks() {
+  document.querySelectorAll("a[data-vid]").forEach(a => {
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      openModal(a.getAttribute("data-vid"));
+    });
+  });
+}
+
+function bindOptionTabs() {
+  document.querySelectorAll(".option-tabs .pill").forEach(b => {
+    b.onclick = () => {
+      state.option = b.getAttribute("data-opt");
+      document.querySelectorAll(".option-tabs .pill").forEach(p => p.classList.toggle("active", p === b));
+      document.querySelectorAll(".option-panel").forEach(p => p.classList.toggle("active", p.getAttribute("data-panel") === state.option));
+    };
+  });
+}
+
+function openModal(vid) {
+  document.getElementById("modalFrame").src = YTEmbed(vid);
+  document.getElementById("modal").classList.add("open");
+}
+function closeModal(e) {
+  if (e && e.target.closest(".modal-inner")) return;
+  document.getElementById("modal").classList.remove("open");
+  document.getElementById("modalFrame").src = "";
+}
+
+renderTabs();
+renderDayTabs();
+render();
+</script>
+</body>
+</html>
