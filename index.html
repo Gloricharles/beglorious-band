@@ -120,6 +120,7 @@
 
   .session.day5 .subhead.bloc-speed-main { background: var(--speed-soft); color: var(--speed-strong); }
   .session.day5 .subhead.bloc-metcon { background: var(--j5-soft); color: var(--j5-strong); }
+  .session.day5 .subhead.bloc-density-choice { background: var(--j5-soft); color: var(--j5-strong); font-size: 11px; }
 
   .option-tabs { display: flex; gap: 6px; padding: 0 16px 12px; flex-wrap: wrap; }
   .option-tabs .pill { font-size: 12px; padding: 5px 12px; }
@@ -231,7 +232,7 @@ const MAIN = {
             ["C1","Squat jump","100reps for time","y8pzmtfjvn4",REST_C,""]],
   "D|base":[["A1","ISO Seated Row","4x 3.3.3sec @ 100% Effort","jWHspk2SlEc",REST_A1,NOTE_ISO_321],
             ["A2","Bent over row for speed","4x 2.2.2","EF40RDUEm94",REST_A2,NOTE_BAL_2],
-            ["B1","Cyclist squat","3-3 tempo, 5x6reps, pause au bas /2reps","tTjGEAWO7Uc",REST_B,""],
+            ["B1","Zercher Cyclist squat","3-3 tempo, 5x6reps, pause au bas /2reps","tTjGEAWO7Uc",REST_B,""],
             ["B2","Zercher Split Squat","5x10/10reps","s2rxyhDISx0",REST_B,""],
             ["B3","Wall sit","5x45sec","n6YcAq_vFo4",REST_B,""],
             ["C1","Banded overhead triceps extension","100reps for time","39U1UBLHj7Q",REST_C,""]],
@@ -254,11 +255,12 @@ const ENDURANCE = {
   8: {name:"5K", detail:"Chronometre"},
 };
 
+// Station D = 1 station avec 2 alternatives (au choix). Chaque alternative a son propre lien video.
 const DENSITY_STATIONS = [
-  ["A- Zercher Sumo Squat","_EQ7Bv8oRdo"],
-  ["B- Push-ups",""],
-  ["C- Back Squat","Uy6FnHnqNX0"],
-  ["D- Seated High Row / Bent Over X Row","MNsZrFJESZ8"],
+  {label:"A- Zercher Sumo Squat", alts:[["Zercher Sumo Squat","_EQ7Bv8oRdo"]]},
+  {label:"B- Push-ups", alts:[["Push-ups",""]]},
+  {label:"C- Back Squat", alts:[["Back Squat",""]]},
+  {label:"D- au choix", alts:[["Seated High Row","MNsZrFJESZ8"],["Bent Over X Row",""]]},
 ];
 const DENSITY = {
   1: {name:"Density 1", rounds:"4 rounds", amrap:"1min", rest:"repos 1min entre exercices, repos 3min entre rounds"},
@@ -352,7 +354,17 @@ function renderEndurance(idx) {
 
 function renderDensity(d) {
   let html = '<div class="meta-line">' + d.rounds + ', Amrap ' + d.amrap + ' par poste - ' + d.rest + '</div>';
-  DENSITY_STATIONS.forEach(s => html += exoRow("", s[0], "Amrap " + d.amrap, s[1], "", ""));
+  DENSITY_STATIONS.forEach(station => {
+    if (station.alts.length === 1) {
+      html += exoRow("", station.label, "Amrap " + d.amrap, station.alts[0][1], "", "");
+    } else {
+      html += '<div class="subhead bloc-density-choice">' + escapeHtml(station.label) + ' - Amrap ' + escapeHtml(d.amrap) + '</div>';
+      station.alts.forEach((alt, i) => {
+        const prefix = i === 0 ? "" : "ou";
+        html += exoRow(prefix, alt[0], "", alt[1], "", "");
+      });
+    }
+  });
   return html;
 }
 
