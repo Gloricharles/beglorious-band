@@ -129,6 +129,15 @@
 
   .meta-line { padding: 8px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); background: #fafbfc; }
 
+  /* Guide / onboarding */
+  .session.guide h2 { background: var(--brand); }
+  .guide-sec { padding: 10px 16px; font-size: 12px; font-weight: 700; background: #eef0f3; color: var(--brand); border-top: 1px solid var(--line); }
+  .guide-block { padding: 12px 16px; font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .guide-block ul { margin: 6px 0; padding-left: 18px; }
+  .guide-block li { margin-bottom: 6px; }
+  .guide-block strong { color: var(--ink); }
+  .guide-block .todo { color: var(--pending); background: var(--pending-bg); padding: 1px 5px; border-radius: 3px; }
+
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
   .modal.open { display: flex; }
   .modal-inner { background: black; border-radius: 8px; max-width: 540px; width: 100%; aspect-ratio: 9/16; max-height: 90vh; position: relative; }
@@ -141,7 +150,7 @@
 <body>
 <header>
   <h1>Beglorious Band</h1>
-  <div class="sub">Programme 4 semaines - usage test interne</div>
+  <div class="sub">Programme 4 semaines - un jeu d'elastiques, partout</div>
 </header>
 <div class="controls" id="weekTabs"></div>
 <main>
@@ -296,7 +305,7 @@ const WEEKS = {
   4: {strDay1:["C","prog"], strDay3:["D","prog"], endIdx:7, density:4, speed:4},
 };
 
-let state = { week: 1, day: 1, option: "density" };
+let state = { view: "guide", week: 1, day: 1, option: "density" };
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -407,7 +416,75 @@ function renderDay5(week) {
   '</div>';
 }
 
+function renderGuide() {
+  return '' +
+  '<div class="session guide">' +
+    '<h2>Avant de commencer</h2>' +
+
+    '<div class="guide-sec">Le programme</div>' +
+    '<div class="guide-block">' +
+      'Beglorious Band, c\'est 4 semaines avec un seul jeu d\'elastiques. Chaque semaine : 4 seances de force (Jour 1 et 3), 2 seances d\'endurance (Jour 2 et 4) et 1 seance au choix (Jour 5). Compte 30 a 45 min par seance. Le but : maintenir ta forme et meme progresser pendant que tu es loin de ta salle. La bande impose un stimulus different de tes metcons habituels, c\'est ce qui peut casser la routine de groupe et debloquer du progres.' +
+    '</div>' +
+
+    '<div class="guide-sec">Ton materiel</div>' +
+    '<div class="guide-block">' +
+      'Il te faut ton jeu d\'elastiques de resistances graduees (leger / moyen / lourd / tres lourd) et la sangle rigide pour les ISO max, ou tu pousses le plus fort possible sans laisser la position se deformer.' +
+      '<ul>' +
+        '<li>Choisis la resistance selon le mouvement : celle qui t\'amene a l\'echec dans la fourchette de reps demandee.</li>' +
+        '<li>Si tu finis une serie trop facilement, monte d\'un cran avant de juger l\'exo trop leger.</li>' +
+        '<li>References conseillees : <span class="todo">Decathlon - a completer</span>.</li>' +
+      '</ul>' +
+    '</div>' +
+
+    '<div class="guide-sec">Comment lire une seance de force</div>' +
+    '<div class="guide-block">' +
+      'Chaque seance de force suit le meme ordre :' +
+      '<ul>' +
+        '<li><strong>Mobilite &amp; Activation</strong> - prepare le corps, a ne pas sauter.</li>' +
+        '<li><strong>Bloc A - Max + Vitesse</strong> - force maximale (ISO) et explosivite. Repos longs, qualite avant tout.</li>' +
+        '<li><strong>Bloc B - Force-endurance</strong> - a faire dans l\'ordre : toutes les series de B1, puis B2, puis B3. Ce n\'est pas un circuit.</li>' +
+        '<li><strong>Bloc C - Finisher</strong> - un gros volume a terminer le plus vite possible (for time).</li>' +
+      '</ul>' +
+    '</div>' +
+
+    '<div class="guide-sec">Glossaire</div>' +
+    '<div class="guide-block">' +
+      '<ul>' +
+        '<li><strong>AMRAP</strong> - autant de reps propres que possible dans le temps donne.</li>' +
+        '<li><strong>For time</strong> - tu termines le nombre de reps prescrit le plus vite possible, execution propre.</li>' +
+        '<li><strong>Density</strong> - beaucoup de volume sur un meme pattern de mouvement, pour aller chercher la brulure musculaire.</li>' +
+        '<li><strong>Tempo (ex. 3-3)</strong> - secondes de descente puis secondes de pause. Tu controles le mouvement.</li>' +
+        '<li><strong>ISO (ex. 3.3.3)</strong> - reps tenues en isometrie X sec, X sec de repos entre chaque. Sur les ISO max, l\'intention compte autant que la position : tu pousses le plus fort possible tout en luttant contre toute deformation.</li>' +
+        '<li><strong>RPE 7-8</strong> - effort sur 10 ou il te reste 2 a 3 reps en reserve.</li>' +
+        '<li><strong>Allure 5k</strong> - le rythme que tu pourrais tenir sur un 5 km a fond.</li>' +
+      '</ul>' +
+    '</div>' +
+
+    '<div class="guide-sec">Endurance et test 5K</div>' +
+    '<div class="guide-block">' +
+      '<strong>Explore Run</strong> : sortie facile, tu peux parler en courant. <strong>Run structure</strong> : intervalles a allure 5k. En <strong>semaine 4</strong>, tu fais un test 5K chronometre : n\'importe quel parcours plat de 5 km, mesure a la montre ou via une app, note ton temps. Refais le meme parcours plus tard pour comparer ta progression.' +
+    '</div>' +
+
+    '<div class="guide-sec">Jour 5</div>' +
+    '<div class="guide-block">' +
+      'Jour 5 est au choix, sans pression. Quatre seances par semaine, c\'est deja un vrai bloc. Si tu as l\'energie pour une 5e, tu choisis Density, Speed + Metcon ou Rest selon ton etat (le detail est sur l\'onglet Jour 5). En cas de doute, Rest est un vrai choix d\'entrainement, pas un echec.' +
+    '</div>' +
+
+    '<div class="guide-sec">Astuce hors-ligne</div>' +
+    '<div class="guide-block">' +
+      'Les videos de demonstration sont hebergees sur YouTube. Si tu t\'entraines sans bonne connexion (salle d\'hotel, exterieur), previsualise les exos en wifi avant ta seance.' +
+    '</div>' +
+  '</div>';
+}
+
 function render() {
+  const dayTabs = document.getElementById("dayTabs");
+  if (state.view === "guide") {
+    dayTabs.style.display = "none";
+    document.getElementById("content").innerHTML = renderGuide();
+    return;
+  }
+  dayTabs.style.display = "";
   const cfg = WEEKS[state.week];
   let html = "";
   if (state.day === 1) html = renderStrength(cfg.strDay1[0], cfg.strDay1[1]);
@@ -423,11 +500,16 @@ function render() {
 function renderTabs() {
   const wt = document.getElementById("weekTabs");
   wt.innerHTML = "";
+  const g = document.createElement("button");
+  g.className = "pill" + (state.view === "guide" ? " active" : "");
+  g.textContent = "Guide";
+  g.onclick = () => { state.view = "guide"; renderTabs(); render(); };
+  wt.appendChild(g);
   for (let w = 1; w <= 4; w++) {
     const b = document.createElement("button");
-    b.className = "pill" + (state.week===w?" active":"");
+    b.className = "pill" + (state.view === "program" && state.week===w?" active":"");
     b.textContent = "Semaine " + w;
-    b.onclick = () => { state.week = w; renderTabs(); render(); };
+    b.onclick = () => { state.view = "program"; state.week = w; renderTabs(); render(); };
     wt.appendChild(b);
   }
 }
