@@ -75,6 +75,13 @@
   .session.endurance h2 { background: var(--fast); color: var(--on-accent); }
   .session.endurance .subhead { border-left-color: var(--fast); }
 
+  .run-step { display: flex; gap: 12px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 13px; align-items: baseline; }
+  .run-step .lbl { color: var(--fast); font-weight: 700; font-size: 12px; min-width: 96px; flex: 0 0 auto; }
+  .run-step .val { color: var(--text); }
+  .run-step.main { background: rgba(41,196,214,.06); }
+  .run-step.main .val { font-weight: 600; }
+  .alt-or { color: var(--muted); font-weight: 400; font-size: 12px; }
+
   .session.day5 h2 { background: var(--happy); color: var(--on-primary); }
   .session.day5 .subhead { border-left-color: var(--happy); }
   .session.day5 .option-tabs .pill.active[data-opt="density"] { background: var(--happy); border-color: var(--happy); color: var(--on-primary); }
@@ -303,9 +310,9 @@ function exoRow(bloc, name, detail, vid, rest, note) {
   const nameHtml = vid
     ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + nameSafe + '</a>'
     : '<span class="noplay">' + nameSafe + '</span>';
-  const detailHtml = vid
+  const detailHtml = detailSafe
     ? '<div class="detail">' + detailSafe + '</div>'
-    : '<div class="detail pending">' + (detailSafe ? detailSafe + "  " : "") + '[video a venir]</div>';
+    : '';
   const restHtml = rest ? '<div class="rest">' + escapeHtml(rest) + '</div>' : '';
   const noteHtml = note ? '<div class="note">' + escapeHtml(note) + '</div>' : '';
   return '<div class="exo"><div class="bloc">' + escapeHtml(bloc || "") + '</div><div class="body"><div class="name">' + nameHtml + '</div>' + detailHtml + restHtml + noteHtml + '</div></div>';
@@ -326,7 +333,8 @@ function renderStrength(letter, variant) {
              '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>';
   mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
-    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>';
+    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>' +
+            '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les series. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
     blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocB.length) {
@@ -344,7 +352,28 @@ function renderStrength(letter, variant) {
 
 function renderEndurance(idx) {
   const e = ENDURANCE[idx];
-  return '<div class="session endurance"><h2>Endurance</h2>' + exoRow("", e.name, e.detail, "", "", "") + '</div>';
+  const is5k = e.name === "5K";
+  const m = e.detail.match(/(\d+)x\((\d+)min @5k pace RPE7-8 \+ (\d+)min repos\)/);
+  let tag, inner;
+  if (is5k) {
+    tag = "test";
+    inner = '<div class="run-step main"><span class="lbl">Test 5K</span><span class="val">5 km chronometre, parcours plat</span></div>' +
+            '<div class="bloc-note">Test de fin de bloc. Chronometre-toi sur 5 km, note ton temps, et refais le meme parcours plus tard pour comparer.</div>';
+  } else if (m) {
+    tag = "intervalles";
+    const segs = e.detail.split(" / ");
+    inner =
+      '<div class="run-step"><span class="lbl">Echauffement</span><span class="val">' + escapeHtml(segs[0]) + '</span></div>' +
+      '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[1]) + '</span></div>' +
+      '<div class="run-step main"><span class="lbl">Intervalles</span><span class="val">' + m[1] + ' x ' + m[2] + ' min a allure 5k (RPE 7-8), ' + m[3] + ' min repos entre chaque</span></div>' +
+      '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[3]) + '</span></div>' +
+      '<div class="run-step"><span class="lbl">Retour calme</span><span class="val">' + escapeHtml(segs[4]) + '</span></div>';
+  } else {
+    tag = "facile";
+    inner = '<div class="run-step main"><span class="lbl">' + escapeHtml(e.name) + '</span><span class="val">' + escapeHtml(e.detail) + '</span></div>' +
+            '<div class="bloc-note">Allure conversationnelle : tu dois pouvoir parler en courant. Objectif aerobie, sans chercher la performance.</div>';
+  }
+  return '<div class="session endurance"><h2>Endurance <span class="tag">' + tag + '</span></h2>' + inner + '</div>';
 }
 
 function renderDensity(d) {
@@ -353,11 +382,14 @@ function renderDensity(d) {
     if (station.alts.length === 1) {
       html += exoRow("", station.label, "Amrap " + d.amrap, station.alts[0][1], "", "");
     } else {
-      html += '<div class="subhead bloc-density-choice">' + escapeHtml(station.label) + ' - Amrap ' + escapeHtml(d.amrap) + '</div>';
-      station.alts.forEach((alt, i) => {
-        const prefix = i === 0 ? "" : "ou";
-        html += exoRow(prefix, alt[0], "", alt[1], "", "");
-      });
+      const links = station.alts.map(alt => alt[1]
+        ? '<a href="' + YT(alt[1]) + '" target="_blank" rel="noopener" data-vid="' + alt[1] + '">' + escapeHtml(alt[0]) + '</a>'
+        : '<span class="noplay">' + escapeHtml(alt[0]) + '</span>'
+      ).join(' <span class="alt-or">ou</span> ');
+      html += '<div class="exo"><div class="bloc"></div><div class="body">' +
+              '<div class="name">' + escapeHtml(station.label) + ' : ' + links + '</div>' +
+              '<div class="detail">Amrap ' + escapeHtml(d.amrap) + '</div>' +
+              '</div></div>';
     }
   });
   return html;
