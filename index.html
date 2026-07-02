@@ -471,7 +471,8 @@ function renderStrength(letter, variant) {
 
   let html = '<div class="session s-' + letter + '">' +
              '<h2>Strength ' + letter + ' ' + variantTag + '</h2>' +
-             '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>';
+             '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>' +
+             '<div class="bloc-note">3 tours - Not For Time. Enchaine les 5 exercices dans l\'ordre, puis recommence 2 fois de plus. Pas de chrono, juste de la qualite de mouvement.</div>';
   mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
     html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>' +
