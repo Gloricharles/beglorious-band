@@ -164,6 +164,13 @@
   .feel-note { width: 100%; margin-top: 10px; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 12px; font-family: inherit; resize: vertical; min-height: 44px; }
   .feel-note::placeholder { color: var(--muted); }
 
+  .score-block { display: flex; align-items: center; gap: 10px; padding: 8px 16px 10px; }
+  .score-block .score-label { font-size: 11px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--accent); min-width: 44px; }
+  .score-input { flex: 1; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 6px 9px; font-size: 12px; font-family: inherit; }
+  .score-input::placeholder { color: var(--muted); }
+  .copy-btn { margin-top: 10px; width: 100%; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 8px 10px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+  .copy-btn:hover { background: rgba(21,181,166,.1); }
+
   .day-tabs .pill.day-done { border-color: var(--accent); }
 </style>
 </head>
@@ -338,9 +345,15 @@ let state = { view: "guide", week: 1, day: 1, option: "density" };
 function loadProgress() {
   try {
     const raw = localStorage.getItem("bgb_progress");
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (!p.sessions) p.sessions = {};
+      if (!p.notes) p.notes = {};
+      if (!p.scores) p.scores = {};
+      return p;
+    }
   } catch (e) {}
-  return { sessions: {}, notes: {}, name: "" };
+  return { sessions: {}, notes: {}, scores: {}, name: "" };
 }
 function saveProgress() {
   try { localStorage.setItem("bgb_progress", JSON.stringify(progress)); } catch (e) {}
@@ -415,6 +428,7 @@ function renderSessionTrack() {
       '<span id="doneLabel">' + (done ? "Seance terminee" : "Marquer la seance comme terminee") + '</span>' +
     '</button>' +
     '<textarea id="feelNote" class="feel-note" placeholder="Ton ressenti (optionnel) - reste sur cet appareil, envoie-le a Charles si tu veux le partager">' + escapeHtml(note) + '</textarea>' +
+    '<button type="button" id="copyScores" class="copy-btn">Copier score + ressenti pour Charles</button>' +
   '</div>';
 }
 
@@ -438,6 +452,30 @@ function bindTrack() {
     ta.addEventListener("input", () => {
       progress.notes[key] = ta.value;
       saveProgress();
+    });
+  }
+  const cp = document.getElementById("copyScores");
+  if (cp) {
+    cp.addEventListener("click", async () => {
+      const txt = collectSessionText();
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(txt);
+        ok = true;
+      } catch (e) {
+        try {
+          const tmp = document.createElement("textarea");
+          tmp.value = txt;
+          tmp.style.position = "fixed";
+          tmp.style.opacity = "0";
+          document.body.appendChild(tmp);
+          tmp.select();
+          ok = document.execCommand("copy");
+          document.body.removeChild(tmp);
+        } catch (e2) { ok = false; }
+      }
+      cp.textContent = ok ? "Copie ! Colle-le dans ton message" : "Copie impossible - selectionne a la main";
+      setTimeout(() => { cp.textContent = "Copier score + ressenti pour Charles"; }, 2200);
     });
   }
 }
@@ -478,8 +516,8 @@ function renderStrength(letter, variant) {
           '<div class="bloc-note">Enchaine les 3 exercices dans l\'ordre, puis recommence 2 fois de plus. Pas de chrono, juste de la qualite de mouvement.</div>';
   mob.slice(2, 5).forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
-    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>' +
-            '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les series. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
+    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique) <span class="bloc-tag">4 tours - en alternance</span></div>' +
+            '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les 4 tours. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
     blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocB.length) {
@@ -493,6 +531,42 @@ function renderStrength(letter, variant) {
   }
   html += '</div>';
   return html;
+}
+
+function scoreField(key, placeholder) {
+  const val = (progress.scores[key] != null) ? progress.scores[key] : "";
+  return '<div class="score-block"><span class="score-label">Score</span>' +
+         '<input type="text" class="score-input" data-skey="' + escapeHtml(key) + '" value="' + escapeHtml(val) + '" placeholder="' + escapeHtml(placeholder) + '"></div>';
+}
+
+function bindScores() {
+  document.querySelectorAll(".score-input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      progress.scores[inp.dataset.skey] = inp.value;
+      saveProgress();
+    });
+  });
+}
+
+function collectSessionText() {
+  const w = state.week, d = state.day;
+  const lines = [];
+  lines.push("Beglorious Band - Semaine " + w + ", Jour " + d + (progress.name ? " - " + progress.name : ""));
+  if (d === 2 || d === 4) {
+    const v = progress.scores["score_end_w" + w + "d" + d];
+    if (v) lines.push("Endurance : " + v);
+  }
+  if (d === 5) {
+    ["A","B","C","D"].forEach(L => {
+      const v = progress.scores["score_dens_w" + w + "_" + L];
+      if (v) lines.push("Density " + L + " : " + v);
+    });
+    const mv = progress.scores["score_metcon_w" + w];
+    if (mv) lines.push("Metcon : " + mv);
+  }
+  const note = progress.notes["w" + w + "d" + d];
+  if (note) lines.push("Ressenti : " + note);
+  return lines.join("\n");
 }
 
 function renderEndurance(idx) {
@@ -518,24 +592,34 @@ function renderEndurance(idx) {
     inner = '<div class="run-step main"><span class="lbl">' + escapeHtml(e.name) + '</span><span class="val">' + escapeHtml(e.detail) + '</span></div>' +
             '<div class="bloc-note">Allure conversationnelle : tu dois pouvoir parler en courant. Objectif aerobie, sans chercher la performance.</div>';
   }
-  return '<div class="session endurance"><h2>Endurance <span class="tag">' + tag + '</span></h2>' + inner + '</div>';
+  return '<div class="session endurance"><h2>Endurance <span class="tag">' + tag + '</span></h2>' + inner +
+         scoreField("score_end_w" + state.week + "d" + state.day, is5k ? "Ton temps (ex. 22:30)" : "Distance ou ressenti d'allure") +
+         '</div>';
 }
 
 function renderDensity(d) {
   let html = '<div class="meta-line">' + d.rounds + ', Amrap ' + d.amrap + ' par poste - ' + d.rest + '</div>';
-  DENSITY_STATIONS.forEach(station => {
+  const letters = ["A","B","C","D"];
+  DENSITY_STATIONS.forEach((station, i) => {
+    const L = letters[i] || String(i + 1);
+    let nameHtml;
     if (station.alts.length === 1) {
-      html += exoRow("", station.label, "Amrap " + d.amrap, station.alts[0][1], "", "");
+      const a = station.alts[0];
+      nameHtml = a[1]
+        ? '<a href="' + YT(a[1]) + '" target="_blank" rel="noopener" data-vid="' + a[1] + '">' + escapeHtml(station.label) + '</a>'
+        : '<span class="noplay">' + escapeHtml(station.label) + '</span>';
     } else {
       const links = station.alts.map(alt => alt[1]
         ? '<a href="' + YT(alt[1]) + '" target="_blank" rel="noopener" data-vid="' + alt[1] + '">' + escapeHtml(alt[0]) + '</a>'
         : '<span class="noplay">' + escapeHtml(alt[0]) + '</span>'
       ).join(' <span class="alt-or">ou</span> ');
-      html += '<div class="exo"><div class="bloc"></div><div class="body">' +
-              '<div class="name">' + escapeHtml(station.label) + ' : ' + links + '</div>' +
-              '<div class="detail">Amrap ' + escapeHtml(d.amrap) + '</div>' +
-              '</div></div>';
+      nameHtml = escapeHtml(station.label) + ' : ' + links;
     }
+    html += '<div class="exo"><div class="bloc"></div><div class="body">' +
+            '<div class="name">' + nameHtml + '</div>' +
+            '<div class="detail">Amrap ' + escapeHtml(d.amrap) + '</div>' +
+            '</div></div>' +
+            scoreField("score_dens_w" + state.week + "_" + L, "Tes reps (ex. 22-20-18 par round)");
   });
   return html;
 }
@@ -549,6 +633,7 @@ function renderSpeed(s) {
   html += '<div class="subhead bloc-metcon">Metcon</div>' +
           '<div class="bloc-note">' + escapeHtml(s.metconFormat) + '</div>';
   s.metcon.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1], "", ""));
+  html += scoreField("score_metcon_w" + state.week, "Ton score (rounds + reps)");
   return html;
 }
 
@@ -661,6 +746,7 @@ function render() {
   bindLinks();
   bindOptionTabs();
   bindTrack();
+  bindScores();
 }
 
 function renderTabs() {
