@@ -63,6 +63,7 @@
   .session h2 { margin: 0; padding: 12px 16px; color: var(--text); font-family: "Bricolage Grotesque", "Work Sans", sans-serif; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
   .session h2 .tag { font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; background: rgba(0,0,0,.22); padding: 2px 6px; border-radius: 4px; }
   .subhead { padding: 8px 16px 8px 13px; font-size: 12px; font-weight: 600; color: var(--text); background: rgba(244,238,227,.04); border-left: 3px solid var(--line); }
+  .bloc-tag { font-size: 10px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
 
   .session.s-A h2, .session.s-B h2, .session.s-C h2, .session.s-D h2 { background: var(--strong); color: var(--text); }
   .session.s-A .subhead, .session.s-B .subhead, .session.s-C .subhead, .session.s-D .subhead { border-left-color: var(--strong); }
@@ -471,9 +472,11 @@ function renderStrength(letter, variant) {
 
   let html = '<div class="session s-' + letter + '">' +
              '<h2>Strength ' + letter + ' ' + variantTag + '</h2>' +
-             '<div class="subhead bloc-prep">Mobilite &amp; Activation</div>' +
-             '<div class="bloc-note">3 tours - Not For Time. Enchaine les 5 exercices dans l\'ordre, puis recommence 2 fois de plus. Pas de chrono, juste de la qualite de mouvement.</div>';
-  mob.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
+             '<div class="subhead bloc-prep">Mobilite <span class="bloc-tag">1 tour</span></div>';
+  mob.slice(0, 2).forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
+  html += '<div class="subhead bloc-prep">Activation <span class="bloc-tag">3 tours - Not For Time</span></div>' +
+          '<div class="bloc-note">Enchaine les 3 exercices dans l\'ordre, puis recommence 2 fois de plus. Pas de chrono, juste de la qualite de mouvement.</div>';
+  mob.slice(2, 5).forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
     html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique)</div>' +
             '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les series. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
