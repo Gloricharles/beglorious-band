@@ -80,6 +80,15 @@
 <footer>Beglorious - acces gratuit, sans engagement.</footer>
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    if (localStorage.getItem("bgb_access_granted") === "1") {
+      document.getElementById("accessForm").style.display = "none";
+      document.getElementById("reveal").classList.add("show");
+    }
+  } catch (e) {}
+});
+
 document.getElementById("accessForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
@@ -94,6 +103,7 @@ document.getElementById("accessForm").addEventListener("submit", function(e) {
     headers: { "Accept": "application/json" }
   }).then(function(response) {
     if (response.ok) {
+      try { localStorage.setItem("bgb_access_granted", "1"); } catch (err) {}
       document.getElementById("reveal").classList.add("show");
       document.getElementById("reveal").scrollIntoView({behavior: "smooth", block: "start"});
       form.style.display = "none";
