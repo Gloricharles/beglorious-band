@@ -102,7 +102,8 @@
   .exo { display: grid; grid-template-columns: 36px 1fr; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--line); align-items: baseline; }
   .exo .bloc { color: var(--muted); font-size: 11px; font-weight: 700; padding-top: 2px; }
   .exo .body { font-size: 14px; line-height: 1.4; }
-  .exo .name a { color: var(--link); text-decoration: none; font-weight: 600; }
+  .exo .name a { color: var(--link); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+  .play-ic { flex: 0 0 auto; opacity: .85; }
   .exo .name a:hover { text-decoration: underline; }
   .exo .name .noplay { color: var(--text); font-weight: 600; }
   .exo .detail { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -595,11 +596,13 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
+const PLAY_ICON = '<svg class="play-ic" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8.3 L16 12 L10 15.7 Z"/></svg>';
+
 function exoRow(bloc, name, detail, vid, rest, note) {
   const nameSafe = escapeHtml(name);
   const detailSafe = escapeHtml(detail || "");
   const nameHtml = vid
-    ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + nameSafe + '</a>'
+    ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + PLAY_ICON + nameSafe + '</a>'
     : '<span class="noplay">' + nameSafe + '</span>';
   const detailHtml = detailSafe
     ? '<div class="detail">' + detailSafe + '</div>'
@@ -717,11 +720,11 @@ function renderDensity(d) {
     if (station.alts.length === 1) {
       const a = station.alts[0];
       nameHtml = a[1]
-        ? '<a href="' + YT(a[1]) + '" target="_blank" rel="noopener" data-vid="' + a[1] + '">' + escapeHtml(station.label) + '</a>'
+        ? '<a href="' + YT(a[1]) + '" target="_blank" rel="noopener" data-vid="' + a[1] + '">' + PLAY_ICON + escapeHtml(station.label) + '</a>'
         : '<span class="noplay">' + escapeHtml(station.label) + '</span>';
     } else {
       const links = station.alts.map(alt => alt[1]
-        ? '<a href="' + YT(alt[1]) + '" target="_blank" rel="noopener" data-vid="' + alt[1] + '">' + escapeHtml(alt[0]) + '</a>'
+        ? '<a href="' + YT(alt[1]) + '" target="_blank" rel="noopener" data-vid="' + alt[1] + '">' + PLAY_ICON + escapeHtml(alt[0]) + '</a>'
         : '<span class="noplay">' + escapeHtml(alt[0]) + '</span>'
       ).join(' <span class="alt-or">ou</span> ');
       nameHtml = escapeHtml(station.label) + ' : ' + links;
@@ -830,9 +833,14 @@ function renderGuide() {
       'Jour 5 est au choix, sans pression. Les 4 seances obligatoires de la semaine (2 de force, 2 d\'endurance) forment deja un vrai bloc. Si tu as l\'energie pour une 5e seance, tu choisis Density, Speed + Metcon ou Rest selon ton etat (le detail est sur l\'onglet Jour 5). En cas de doute, Rest est un vrai choix d\'entrainement, pas un echec.' +
     '</div>' +
 
+    '<div class="guide-sec">Le chrono</div>' +
+    '<div class="guide-block">' +
+      'Un bouton Chrono flotte en bas a droite de l\'ecran, sur toutes les pages. Il reste visible meme quand tu fais defiler la seance. Trois modes : Chrono (temps qui monte, pour les finishers), Minuteur (decompte, pour la recup), Intervalles (travail/repos/tours, pour le metcon). Il continue de tourner meme si tu fermes le panneau.' +
+    '</div>' +
+
     '<div class="guide-sec">Astuce hors-ligne</div>' +
     '<div class="guide-block">' +
-      'Les videos de demonstration sont hebergees sur YouTube. Si tu t\'entraines sans bonne connexion (salle d\'hotel, exterieur), previsualise les exos en wifi avant ta seance.' +
+      'Les videos de demonstration sont hebergees sur YouTube. Si tu t\'entraines sans bonne connexion (salle d\'hotel, exterieur), previsualise les exos en wifi avant ta seance. Un exercice cliquable affiche une petite icone play devant son nom.' +
     '</div>' +
   '</div>';
 }
