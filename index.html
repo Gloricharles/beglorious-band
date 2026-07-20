@@ -704,32 +704,60 @@ function collectSessionText() {
   return lines.join("\n");
 }
 
+function enduranceIntervalContent(e, label) {
+  const m = e.detail.match(/(\d+)x\((\d+)min @5k pace RPE7-8 \+ (\d+)min repos\)/);
+  const segs = e.detail.split(" / ");
+  return '<div class="run-step"><span class="lbl">Echauffement</span><span class="val">' + escapeHtml(segs[0]) + '</span></div>' +
+    '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[1]) + '</span></div>' +
+    '<div class="run-step main"><span class="lbl">Intervalles</span><span class="val">' + m[1] + ' x ' + m[2] + ' min a ' + label + ', ' + m[3] + ' min repos entre chaque</span></div>' +
+    '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[3]) + '</span></div>' +
+    '<div class="run-step"><span class="lbl">Retour calme</span><span class="val">' + escapeHtml(segs[4]) + '</span></div>';
+}
+
 function renderEndurance(idx) {
   const e = ENDURANCE[idx];
   const is5k = e.name === "5K";
-  const m = e.detail.match(/(\d+)x\((\d+)min @5k pace RPE7-8 \+ (\d+)min repos\)/);
-  let tag, inner;
+  const isInterval = /\d+x\(\d+min @5k pace/.test(e.detail);
+
   if (is5k) {
-    tag = "test";
-    inner = '<div class="run-step main"><span class="lbl">Test 5K</span><span class="val">5 km chronometre, parcours plat</span></div>' +
-            '<div class="bloc-note">Test de fin de bloc. Chronometre-toi sur 5 km, note ton temps, et refais le meme parcours plus tard pour comparer.</div>';
-  } else if (m) {
-    tag = "intervalles";
-    const segs = e.detail.split(" / ");
-    inner =
-      '<div class="run-step"><span class="lbl">Echauffement</span><span class="val">' + escapeHtml(segs[0]) + '</span></div>' +
-      '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[1]) + '</span></div>' +
-      '<div class="run-step main"><span class="lbl">Intervalles</span><span class="val">' + m[1] + ' x ' + m[2] + ' min a allure 5k (RPE 7-8), ' + m[3] + ' min repos entre chaque</span></div>' +
-      '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[3]) + '</span></div>' +
-      '<div class="run-step"><span class="lbl">Retour calme</span><span class="val">' + escapeHtml(segs[4]) + '</span></div>';
-  } else {
-    tag = "facile";
-    inner = '<div class="run-step main"><span class="lbl">' + escapeHtml(e.name) + '</span><span class="val">' + escapeHtml(e.detail) + '</span></div>' +
-            '<div class="bloc-note">Allure conversationnelle : tu dois pouvoir parler en courant. Objectif aerobie, sans chercher la performance.</div>';
+    const testModes = [["course", "Course", "5 km", "5K", "Chronometre-toi sur 5 km, note ton temps, et refais le meme parcours plus tard pour comparer."],
+                        ["rameur", "Rameur", "5 km", "5K", "Meme distance qu'en course. Chronometre-toi sur 5 km au rameur, note ton temps, et refais le meme test plus tard pour comparer."],
+                        ["velo", "Velo", "10 km", "10K", "Equivalent velo du test 5K course : distance doublee. Chronometre-toi sur 10 km, note ton temps, et refais le meme parcours plus tard pour comparer."]];
+    let panels = "";
+    testModes.forEach(([key, label, dist, testLabel, note]) => {
+      panels += '<div class="option-panel endurance-panel' + (key === "course" ? " active" : "") + '" data-emode="' + key + '">' +
+        '<div class="run-step main"><span class="lbl">Test ' + testLabel + '</span><span class="val">' + dist + ' chronometre, parcours plat</span></div>' +
+        '<div class="bloc-note">' + note + '</div>' +
+      '</div>';
+    });
+    const tabs = '<div class="option-tabs endurance-tabs">' + testModes.map(([key, label]) =>
+      '<button type="button" class="pill' + (key === "course" ? " active" : "") + '" data-emode-btn="' + key + '">' + label + '</button>'
+    ).join('') + '</div>';
+    return '<div class="session endurance"><h2>Endurance <span class="tag">test</span></h2>' + tabs + panels +
+           scoreField("score_end_w" + state.week + "d" + state.day, "Ton temps (ex. 22:30)") + '</div>';
   }
-  return '<div class="session endurance"><h2>Endurance <span class="tag">' + tag + '</span></h2>' + inner +
-         scoreField("score_end_w" + state.week + "d" + state.day, is5k ? "Ton temps (ex. 22:30)" : "Distance ou ressenti d'allure") +
-         '</div>';
+
+  const tag = isInterval ? "intervalles" : "facile";
+  const modes = [["course", "Course"], ["rameur", "Rameur"], ["velo", "Velo"]];
+  let panels = "";
+  modes.forEach(([key, label]) => {
+    let content;
+    if (isInterval) {
+      const pace = (key === "course" || key === "rameur") ? "allure 5k (RPE 7-8)" : "intensite RPE 7-8, soutenue mais controlee";
+      content = enduranceIntervalContent(e, pace);
+    } else {
+      const verbe = key === "course" ? "courant" : (key === "rameur" ? "ramant" : "pedalant");
+      content = '<div class="run-step main"><span class="lbl">' + escapeHtml(e.name) + '</span><span class="val">' + escapeHtml(e.detail) + '</span></div>' +
+        '<div class="bloc-note">Allure conversationnelle : tu dois pouvoir parler en ' + verbe + '. Objectif aerobie, sans chercher la performance.</div>';
+    }
+    panels += '<div class="option-panel endurance-panel' + (key === "course" ? " active" : "") + '" data-emode="' + key + '">' + content + '</div>';
+  });
+  const tabs = '<div class="option-tabs endurance-tabs">' + modes.map(([key, label]) =>
+    '<button type="button" class="pill' + (key === "course" ? " active" : "") + '" data-emode-btn="' + key + '">' + label + '</button>'
+  ).join('') + '</div>';
+
+  return '<div class="session endurance"><h2>Endurance <span class="tag">' + tag + '</span></h2>' + tabs + panels +
+         scoreField("score_end_w" + state.week + "d" + state.day, "Distance ou ressenti d'allure") + '</div>';
 }
 
 function renderDensity(d) {
@@ -955,11 +983,18 @@ function bindLinks() {
 }
 
 function bindOptionTabs() {
-  document.querySelectorAll(".option-tabs .pill").forEach(b => {
+  document.querySelectorAll(".option-tabs.endurance-tabs .pill").forEach(b => {
+    b.onclick = () => {
+      const mode = b.getAttribute("data-emode-btn");
+      document.querySelectorAll(".endurance-tabs .pill").forEach(p => p.classList.toggle("active", p === b));
+      document.querySelectorAll(".endurance-panel").forEach(p => p.classList.toggle("active", p.getAttribute("data-emode") === mode));
+    };
+  });
+  document.querySelectorAll(".option-tabs:not(.endurance-tabs) .pill").forEach(b => {
     b.onclick = () => {
       state.option = b.getAttribute("data-opt");
-      document.querySelectorAll(".option-tabs .pill").forEach(p => p.classList.toggle("active", p === b));
-      document.querySelectorAll(".option-panel").forEach(p => p.classList.toggle("active", p.getAttribute("data-panel") === state.option));
+      document.querySelectorAll(".option-tabs:not(.endurance-tabs) .pill").forEach(p => p.classList.toggle("active", p === b));
+      document.querySelectorAll(".option-panel:not(.endurance-panel)").forEach(p => p.classList.toggle("active", p.getAttribute("data-panel") === state.option));
     };
   });
 }
