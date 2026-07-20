@@ -200,7 +200,8 @@
   .theme-switch button.active { background: var(--primary); color: var(--on-primary); }
 
   /* Chrono flottant */
-  .timer-fab { position: fixed; right: 14px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: flex; align-items: center; gap: 8px; background: var(--primary); color: var(--on-primary); border: none; border-radius: 999px; padding: 11px 16px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.35); font-variant-numeric: tabular-nums; }
+  .timer-fab { position: fixed; right: 14px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: flex; align-items: center; gap: 8px; background: var(--primary); color: var(--on-primary); border: none; border-radius: 999px; padding: 11px 16px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: grab; box-shadow: 0 6px 20px rgba(0,0,0,.35); font-variant-numeric: tabular-nums; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .timer-fab.dragging { cursor: grabbing; box-shadow: 0 10px 28px rgba(0,0,0,.45); transition: none; }
   .timer-fab .fab-ic { width: 16px; height: 16px; display: block; }
   .timer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 44; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
   .timer-backdrop.open { opacity: 1; pointer-events: auto; }
@@ -260,7 +261,7 @@
     <iframe id="modalFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </div>
 </div>
-<button id="timerFab" class="timer-fab" type="button" onclick="openTimer()">
+<button id="timerFab" class="timer-fab" type="button">
   <svg class="fab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 2h6"/><path d="M12 13l3-2"/><circle cx="12" cy="14" r="8"/></svg>
   <span id="fabLabel">Chrono</span>
 </button>
@@ -443,10 +444,11 @@ function loadProgress() {
       if (!p.notes) p.notes = {};
       if (!p.scores) p.scores = {};
       if (!p.theme) p.theme = "dark";
+      if (p.timerPos === undefined) p.timerPos = null;
       return p;
     }
   } catch (e) {}
-  return { sessions: {}, notes: {}, scores: {}, name: "", theme: "dark" };
+  return { sessions: {}, notes: {}, scores: {}, name: "", theme: "dark", timerPos: null };
 }
 function saveProgress() {
   try { localStorage.setItem("bgb_progress", JSON.stringify(progress)); } catch (e) {}
@@ -885,10 +887,19 @@ function renderTabs() {
   }
 }
 
+const BIAS = { A: "Squat", B: "Up push", C: "Hinge", D: "Up pull" };
+
 function renderDayTabs() {
   const dt = document.getElementById("dayTabs");
   dt.innerHTML = "";
-  const labels = ["Jour 1 - Strength", "Jour 2 - Endurance", "Jour 3 - Strength", "Jour 4 - Endurance", "Jour 5 - au choix"];
+  const cfg = WEEKS[state.week];
+  const labels = [
+    "Jour 1 - Strength (" + BIAS[cfg.strDay1[0]] + ")",
+    "Jour 2 - Endurance",
+    "Jour 3 - Strength (" + BIAS[cfg.strDay3[0]] + ")",
+    "Jour 4 - Endurance",
+    "Jour 5 - au choix"
+  ];
   labels.forEach((lbl, i) => {
     const d = i + 1;
     const key = "w" + state.week + "d" + d;
@@ -1058,6 +1069,68 @@ function selectPreset(sec){
 }
 function openTimer(){ document.getElementById("timerSheet").classList.add("open"); document.getElementById("timerBackdrop").classList.add("open"); }
 function closeTimer(){ document.getElementById("timerSheet").classList.remove("open"); document.getElementById("timerBackdrop").classList.remove("open"); }
+
+function clampFabPos(x, y, w, h){
+  const margin = 6;
+  const maxX = window.innerWidth - w - margin;
+  const maxY = window.innerHeight - h - margin;
+  return { x: Math.min(Math.max(x, margin), Math.max(margin, maxX)), y: Math.min(Math.max(y, margin), Math.max(margin, maxY)) };
+}
+function applyFabPos(x, y){
+  const fab = document.getElementById("timerFab");
+  fab.style.left = x + "px";
+  fab.style.top = y + "px";
+  fab.style.right = "auto";
+  fab.style.bottom = "auto";
+}
+function bindTimerDrag(){
+  const fab = document.getElementById("timerFab");
+  let dragging = false, moved = false, startX = 0, startY = 0, origX = 0, origY = 0;
+
+  if (progress.timerPos){
+    const w = fab.offsetWidth || 110, h = fab.offsetHeight || 42;
+    const p = clampFabPos(progress.timerPos.x, progress.timerPos.y, w, h);
+    applyFabPos(p.x, p.y);
+  }
+
+  fab.addEventListener("pointerdown", e => {
+    dragging = true; moved = false;
+    const r = fab.getBoundingClientRect();
+    origX = r.left; origY = r.top;
+    startX = e.clientX; startY = e.clientY;
+    fab.setPointerCapture(e.pointerId);
+    fab.classList.add("dragging");
+  });
+  fab.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (!moved && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) moved = true;
+    if (moved){
+      const p = clampFabPos(origX + dx, origY + dy, fab.offsetWidth, fab.offsetHeight);
+      applyFabPos(p.x, p.y);
+    }
+  });
+  fab.addEventListener("pointerup", e => {
+    if (!dragging) return;
+    dragging = false;
+    fab.classList.remove("dragging");
+    if (moved){
+      const r = fab.getBoundingClientRect();
+      progress.timerPos = { x: r.left, y: r.top };
+      saveProgress();
+    } else {
+      openTimer();
+    }
+  });
+  fab.addEventListener("pointercancel", () => { dragging = false; fab.classList.remove("dragging"); });
+
+  window.addEventListener("resize", () => {
+    if (!progress.timerPos) return;
+    const p = clampFabPos(progress.timerPos.x, progress.timerPos.y, fab.offsetWidth, fab.offsetHeight);
+    applyFabPos(p.x, p.y);
+    progress.timerPos = p;
+  });
+}
 function updateFab(){
   var fab=document.getElementById("timerFab"), lbl=document.getElementById("fabLabel");
   if (T.running){
@@ -1076,6 +1149,7 @@ function initTimer(){
 applyTheme();
 bindThemeSwitch();
 initTimer();
+bindTimerDrag();
 renderNameBar();
 renderProgressBar();
 renderTabs();
