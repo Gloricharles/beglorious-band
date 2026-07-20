@@ -359,13 +359,13 @@ const MAIN = {
             ["A2","Broad jump","4x 1.1.1.1.1","Dtw5wkKQ6jc",REST_A2,NOTE_CMJ_RESET],
             ["B1","Seated pull down (Band)","5x6 reps - tempo 3-3 (3s descente, 3s montee, sans pause) - pause 2s en bas toutes les 2 reps","aWQuAAWwOUc",REST_B,""],
             ["B2","Seated face pull","5x10reps","z3CeLd2oJkc",REST_B,""],
-            ["B3","Chin up hold ou Seated Row hold (supinated)","5x10-30sec ou 45sec","",REST_B,""],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x10-30sec ou 45sec","irqdDEcL_1g",REST_B,"","k6KZYqXRtOk"],
             ["C1","Squat jump","75reps for time","y8pzmtfjvn4",REST_C,""]],
   "C|prog":[["A1","ISO Deadlift","4x 3.3.3.3sec @ 100% Effort","n6Xr-O5WiLI",REST_A1,NOTE_ISO_3321],
             ["A2","Broad jump","4x 3 reps consec.","Dtw5wkKQ6jc",REST_A2,""],
             ["B1","Seated pull down (Band)","5x8 reps - tempo 3-3 (3s descente, 3s montee, sans pause) - pause 2s en bas toutes les 2 reps","aWQuAAWwOUc",REST_B,""],
             ["B2","Seated face pull","5x10reps","z3CeLd2oJkc",REST_B,""],
-            ["B3","Chin up hold ou Seated Row hold (supinated)","5x15-45sec ou 60sec","",REST_B,""],
+            ["B3","Chin up hold ou Seated Row hold (supinated)","5x15-45sec ou 60sec","irqdDEcL_1g",REST_B,"","k6KZYqXRtOk"],
             ["C1","Squat jump","90reps for time","y8pzmtfjvn4",REST_C,""]],
   "D|base":[["A1","ISO Seated Row","4x 3.3.3sec @ 100% Effort","jWHspk2SlEc",REST_A1,NOTE_ISO_321],
             ["A2","Bent over row for speed","4x 2.2.2","EF40RDUEm94",REST_A2,NOTE_BAL_2],
@@ -395,9 +395,9 @@ const ENDURANCE = {
 // Station D = 1 station avec 2 alternatives (au choix). Chaque alternative a son propre lien video.
 const DENSITY_STATIONS = [
   {label:"A- Zercher Sumo Squat", alts:[["Zercher Sumo Squat","_EQ7Bv8oRdo"]]},
-  {label:"B- Push-ups", alts:[["Push-ups",""]]},
-  {label:"C- Back Squat", alts:[["Back Squat",""]]},
-  {label:"D- au choix", alts:[["Seated High Row","MNsZrFJESZ8"],["Bent Over X Row",""]]},
+  {label:"B- Push-ups", alts:[["Push-ups","NgvqKbX73MQ"]]},
+  {label:"C- Back Squat", alts:[["Back Squat","ppd-_lRAkt0"]]},
+  {label:"D- au choix", alts:[["Seated High Row","MNsZrFJESZ8"],["Bent Over X Row","gEHUX3xAbrY"]]},
 ];
 const DENSITY = {
   1: {name:"Density 1", rounds:"4 rounds", amrap:"1min", rest:"repos 1min entre exercices, repos 3min entre rounds"},
@@ -414,13 +414,13 @@ const SPEED_DRILLS = [
 const SPEED = {
   1: {name:"SPEED + METCON 1", drill:"Drill 10m (2-3x chaque)", accelflysLabel:"Flys", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
       metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (on reprend au point d'arret entre les rounds)",
-      metcon:[["30 Double unders",""],["15 No push-ups burpees tuck jump","BYv3X9nxxvU"],["30 Double unders",""],["30 Sit-ups","HeC_JaUjs8U"]]},
+      metcon:[["30 Double unders","cxd432rqYuA","Jumping jacks","_Af3jzo_Tzw"],["15 No push-ups burpees tuck jump","BYv3X9nxxvU"],["30 Double unders","cxd432rqYuA","Jumping jacks","_Af3jzo_Tzw"],["30 Sit-ups","HeC_JaUjs8U"]]},
   2: {name:"SPEED + METCON 2", drill:"Drill 15m (1-2x chaque)", accelflysLabel:"Acceleration", accelflys:"Acceleration : 10m sprint toutes les 100sec x8",
       metconFormat:"Amrap 20min, dans l'ordre",
-      metcon:[["200m Run",""],["20 Push-ups",""],["200m Run",""],["20 Reverse lunges","SPWIJlYbtEM"]]},
+      metcon:[["200m Run",""],["20 Push-ups","NgvqKbX73MQ"],["200m Run",""],["20 Reverse lunges","SPWIJlYbtEM"]]},
   3: {name:"SPEED + METCON 3", drill:"Drill 15m (1-2x chaque)", accelflysLabel:"Flys", accelflys:"Flys 20m + 10m max : 1x @80-90% puis 2-3x @100%, toutes les 3min",
       metconFormat:"4min ON / 1min OFF x4 rounds, dans l'ordre (on reprend au point d'arret entre les rounds)",
-      metcon:[["50 Double unders",""],["25 Burpees","yp-_6HFm5DA"],["50 Double unders",""],["25 V-ups","VHNDOBJ7m3I"]]},
+      metcon:[["50 Double unders","cxd432rqYuA","Jumping jacks","_Af3jzo_Tzw"],["25 Burpees","yp-_6HFm5DA"],["50 Double unders","cxd432rqYuA","Jumping jacks","_Af3jzo_Tzw"],["25 V-ups","VHNDOBJ7m3I"]]},
   4: {name:"SPEED + METCON 4", drill:"Drill 20m (1-2x chaque)", accelflysLabel:"Acceleration", accelflys:"Acceleration : 15m sprint toutes les 100sec x8",
       metconFormat:"Amrap 20min, dans l'ordre",
       metcon:[["400m Run",""],["20 Push-ups with bottle slide","Zq6P67w9fdw"],["400m Run",""],["20 Jumping lunges","oetsq6VZHq4"]]},
@@ -600,12 +600,24 @@ function escapeHtml(s) {
 
 const PLAY_ICON = '<svg class="play-ic" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8.3 L16 12 L10 15.7 Z"/></svg>';
 
-function exoRow(bloc, name, detail, vid, rest, note) {
+function exoRow(bloc, name, detail, vid, rest, note, altVid) {
   const nameSafe = escapeHtml(name);
   const detailSafe = escapeHtml(detail || "");
-  const nameHtml = vid
-    ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + PLAY_ICON + nameSafe + '</a>'
-    : '<span class="noplay">' + nameSafe + '</span>';
+  let nameHtml;
+  if (altVid && name.indexOf(" ou ") !== -1) {
+    const sepIdx = name.indexOf(" ou ");
+    const primary = name.slice(0, sepIdx);
+    const alt = name.slice(sepIdx + 4);
+    const primaryLink = vid
+      ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + PLAY_ICON + escapeHtml(primary) + '</a>'
+      : '<span class="noplay">' + escapeHtml(primary) + '</span>';
+    const altLink = '<a href="' + YT(altVid) + '" target="_blank" rel="noopener" data-vid="' + altVid + '">' + PLAY_ICON + escapeHtml(alt) + '</a>';
+    nameHtml = primaryLink + ' <span class="alt-or">ou</span> ' + altLink;
+  } else {
+    nameHtml = vid
+      ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + PLAY_ICON + nameSafe + '</a>'
+      : '<span class="noplay">' + nameSafe + '</span>';
+  }
   const detailHtml = detailSafe
     ? '<div class="detail">' + detailSafe + '</div>'
     : '';
@@ -641,16 +653,16 @@ function renderStrength(letter, variant) {
   if (blocA.length) {
     html += '<div class="subhead bloc-A">' + PATTERNS[letter][0] + ' - Max + Vitesse (iso + balistique) <span class="bloc-tag">4 tours - en alternance</span></div>' +
             '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les 4 tours. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
-    blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
+    blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5], row[6]));
   }
   if (blocB.length) {
     html += '<div class="subhead bloc-B">' + PATTERNS[letter][1] + ' - Force-endurance (tempo)</div>' +
             '<div class="bloc-note">A faire dans l\'ordre : toutes les series de B1 d\'abord, puis toutes les series de B2, puis toutes les series de B3. Ce n\'est pas un circuit.</div>';
-    blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
+    blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5], row[6]));
   }
   if (blocC.length) {
     html += '<div class="subhead bloc-C">' + PATTERNS[letter][2] + ' - Finisher (for time)</div>';
-    blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
+    blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5], row[6]));
   }
   html += '</div>';
   return html;
@@ -755,7 +767,20 @@ function renderSpeed(s) {
           '<div class="bloc-note">' + escapeHtml(s.accelflys) + '</div>';
   html += '<div class="subhead bloc-metcon">Metcon</div>' +
           '<div class="bloc-note">' + escapeHtml(s.metconFormat) + '</div>';
-  s.metcon.forEach((row, i) => html += exoRow(String(i+1), row[0], "", row[1], "", ""));
+  s.metcon.forEach((row, i) => {
+    if (row.length > 2) {
+      const [name, vid, altName, altVid] = row;
+      const nameLink = vid
+        ? '<a href="' + YT(vid) + '" target="_blank" rel="noopener" data-vid="' + vid + '">' + PLAY_ICON + escapeHtml(name) + '</a>'
+        : '<span class="noplay">' + escapeHtml(name) + '</span>';
+      const altLink = altVid
+        ? '<a href="' + YT(altVid) + '" target="_blank" rel="noopener" data-vid="' + altVid + '">' + PLAY_ICON + escapeHtml(altName) + '</a>'
+        : '<span class="noplay">' + escapeHtml(altName) + '</span>';
+      html += '<div class="exo"><div class="bloc">' + (i+1) + '</div><div class="body"><div class="name">' + nameLink + ' <span class="alt-or">ou (sans corde)</span> ' + altLink + '</div></div></div>';
+    } else {
+      html += exoRow(String(i+1), row[0], "", row[1], "", "");
+    }
+  });
   html += scoreField("score_metcon_w" + state.week, "Ton score (rounds + reps)");
   return html;
 }
@@ -804,6 +829,7 @@ function renderGuide() {
         '<li>Elastiques conseilles : lot de 3 Decathlon 10 / 20 / 30 kg (ref 375268). Tu peux les superposer pour monter plus lourd, jusqu\'a 60 kg.</li>' +
         '<li>Sangle rigide (ISO max) : une sangle non elastique fait l\'affaire, par exemple une sangle d\'anneaux de gym. Deux montages possibles : mousqueton + sangle crantee, ou sangle continue a autoserrage. L\'important, c\'est qu\'elle ne s\'etire pas, pour que tu puisses pousser au maximum sans que la position bouge.</li>' +
         '<li>Choisis la resistance selon le mouvement : celle qui t\'amene a l\'echec dans la fourchette de reps demandee. Si une serie est trop facile, monte d\'un cran ou superpose une bande avant de juger l\'exo trop leger.</li>' +
+        '<li>Une corde a sauter est utile pour les double unders (Jour 5, Speed + Metcon), mais pas obligatoire : chaque fois que des double unders sont au programme, une alternative sans matériel (jumping jacks) est proposee juste a cote.</li>' +
       '</ul>' +
     '</div>' +
 
