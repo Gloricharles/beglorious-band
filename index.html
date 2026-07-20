@@ -614,6 +614,13 @@ function exoRow(bloc, name, detail, vid, rest, note) {
   return '<div class="exo"><div class="bloc">' + escapeHtml(bloc || "") + '</div><div class="body"><div class="name">' + nameHtml + '</div>' + detailHtml + restHtml + noteHtml + '</div></div>';
 }
 
+const PATTERNS = {
+  A: ["Squat", "Up push", "Hinge"],
+  B: ["Up push", "Hinge", "Up pull"],
+  C: ["Hinge", "Up pull", "Squat"],
+  D: ["Up pull", "Squat", "Up push"]
+};
+
 function renderStrength(letter, variant) {
   const mob = MOB[letter];
   const main = MAIN[letter + "|" + variant];
@@ -632,17 +639,17 @@ function renderStrength(letter, variant) {
           '<div class="bloc-note">Enchaine les 3 exercices dans l\'ordre, puis recommence 2 fois de plus. Pas de chrono, juste de la qualite de mouvement.</div>';
   mob.slice(2, 5).forEach(row => html += exoRow(row[0], row[1], row[2], row[3], "", ""));
   if (blocA.length) {
-    html += '<div class="subhead bloc-A">Max + Vitesse (iso + balistique) <span class="bloc-tag">4 tours - en alternance</span></div>' +
+    html += '<div class="subhead bloc-A">' + PATTERNS[letter][0] + ' - Max + Vitesse (iso + balistique) <span class="bloc-tag">4 tours - en alternance</span></div>' +
             '<div class="bloc-note">A faire en alternance, pas l\'un apres l\'autre : A1 puis recup courte, A2 puis recup longue, et on recommence jusqu\'a finir les 4 tours. La recup courte apres A1 sert a booster l\'explosivite de A2.</div>';
     blocA.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocB.length) {
-    html += '<div class="subhead bloc-B">Force-endurance (tempo)</div>' +
+    html += '<div class="subhead bloc-B">' + PATTERNS[letter][1] + ' - Force-endurance (tempo)</div>' +
             '<div class="bloc-note">A faire dans l\'ordre : toutes les series de B1 d\'abord, puis toutes les series de B2, puis toutes les series de B3. Ce n\'est pas un circuit.</div>';
     blocB.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   if (blocC.length) {
-    html += '<div class="subhead bloc-C">Finisher (for time)</div>';
+    html += '<div class="subhead bloc-C">' + PATTERNS[letter][2] + ' - Finisher (for time)</div>';
     blocC.forEach(row => html += exoRow(row[0], row[1], row[2], row[3], row[4], row[5]));
   }
   html += '</div>';
