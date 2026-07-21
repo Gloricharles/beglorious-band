@@ -59,6 +59,8 @@
   .controls { display: flex; gap: 8px; padding: 12px 14px; background: var(--bg); border-bottom: 1px solid var(--line); overflow-x: auto; }
   .pill { border: 1px solid var(--line); background: var(--surface); color: var(--text); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .pill.active { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+  .pill.locked { display: inline-flex; align-items: center; gap: 5px; opacity: .5; cursor: default; }
+  .pill.locked:hover { background: var(--surface); }
   .pill:hover:not(.active) { background: var(--hover); }
 
   main { padding: 14px; max-width: 800px; margin: 0 auto; }
@@ -135,6 +137,24 @@
   .guide-block li { margin-bottom: 6px; }
   .guide-block strong { color: var(--text); }
   .guide-block .todo { color: var(--pending); background: var(--pending-bg); padding: 1px 5px; border-radius: 3px; }
+
+  .pace-input-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .perf-block-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .perf-remove { background: none; border: none; color: var(--muted); font-size: 11px; font-family: inherit; cursor: pointer; padding: 2px 4px; text-decoration: underline; }
+  .perf-remove:hover { color: var(--text); }
+  .add-perf-btn { display: block; width: 100%; margin-top: 10px; background: none; border: 1px dashed var(--line); color: var(--accent); border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .add-perf-btn:hover { border-color: var(--accent); background: rgba(21,181,166,.06); }
+  .pace-input-row label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: var(--muted); margin-bottom: 6px; }
+  .pace-input-line { display: flex; align-items: center; gap: 10px; }
+  .pace-input-line input { background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 14px; font-family: inherit; width: 130px; }
+  .pace-input-line input[type="date"] { width: 140px; color-scheme: dark; }
+  body.light .pace-input-line input[type="date"] { color-scheme: light; }
+  .pace-input-line { flex-wrap: wrap; row-gap: 8px; }
+  .pace-input-line select { background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 8px 10px; font-size: 14px; font-family: inherit; width: 100%; max-width: 220px; }
+  .pace-input-line select:focus, .pace-input-line input:focus { outline: none; border-color: var(--accent); }
+  .pace-input-line input:focus { outline: none; border-color: var(--accent); }
+  .pace-result { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
   .modal.open { display: flex; }
@@ -272,9 +292,9 @@
     <button class="sheet-close" type="button" onclick="closeTimer()">&times;</button>
   </div>
   <div class="timer-modes">
-    <button type="button" data-tmode="chrono" class="active" onclick="setTimerMode('chrono')">Chrono</button>
-    <button type="button" data-tmode="minuteur" onclick="setTimerMode('minuteur')">Minuteur</button>
-    <button type="button" data-tmode="intervalles" onclick="setTimerMode('intervalles')">Intervalles</button>
+    <button type="button" data-tmode="chrono" class="active" onclick="tapBeep();setTimerMode('chrono')">Chrono</button>
+    <button type="button" data-tmode="minuteur" onclick="tapBeep();setTimerMode('minuteur')">Minuteur</button>
+    <button type="button" data-tmode="intervalles" onclick="tapBeep();setTimerMode('intervalles')">Intervalles</button>
   </div>
   <div id="timerPhase" class="timer-phase"></div>
   <div id="timerDisplay" class="timer-display">00:00</div>
@@ -286,7 +306,7 @@
   </div>
   <div class="timer-controls">
     <button id="timerStart" class="t-primary" type="button" onclick="toggleTimer()">Demarrer</button>
-    <button class="t-secondary" type="button" onclick="resetTimer()">Reset</button>
+    <button class="t-secondary" type="button" onclick="tapBeep();resetTimer()">Reset</button>
   </div>
 </div>
 
@@ -445,10 +465,24 @@ function loadProgress() {
       if (!p.scores) p.scores = {};
       if (!p.theme) p.theme = "dark";
       if (p.timerPos === undefined) p.timerPos = null;
+      if (p.time5k === undefined) p.time5k = "";
+      if (p.perfDistance === undefined) p.perfDistance = p.time5k ? 5000 : 5000;
+      if (p.perfTime === undefined) p.perfTime = p.time5k || "";
+      if (p.perfDate1 === undefined) p.perfDate1 = "";
+      if (p.perf2Distance === undefined) p.perf2Distance = 5000;
+      if (p.perf2Time === undefined) p.perf2Time = "";
+      if (p.perfDate2 === undefined) p.perfDate2 = "";
+      if (!Array.isArray(p.performances)) {
+        const arr = [];
+        if (p.perfTime) arr.push({ distance: p.perfDistance || 5000, time: p.perfTime, date: p.perfDate1 || "" });
+        if (p.perf2Time) arr.push({ distance: p.perf2Distance || 5000, time: p.perf2Time, date: p.perfDate2 || "" });
+        if (arr.length === 0) arr.push({ distance: 5000, time: "", date: "" });
+        p.performances = arr;
+      }
       return p;
     }
   } catch (e) {}
-  return { sessions: {}, notes: {}, scores: {}, name: "", theme: "dark", timerPos: null };
+  return { sessions: {}, notes: {}, scores: {}, name: "", theme: "dark", timerPos: null, time5k: "", perfDistance: 5000, perfTime: "", perfDate1: "", perf2Distance: 5000, perf2Time: "", perfDate2: "", performances: [{ distance: 5000, time: "", date: "" }] };
 }
 function saveProgress() {
   try { localStorage.setItem("bgb_progress", JSON.stringify(progress)); } catch (e) {}
@@ -599,6 +633,7 @@ function escapeHtml(s) {
 }
 
 const PLAY_ICON = '<svg class="play-ic" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8.3 L16 12 L10 15.7 Z"/></svg>';
+const LOCK_ICON = '<svg class="lock-ic" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
 function exoRow(bloc, name, detail, vid, rest, note, altVid) {
   const nameSafe = escapeHtml(name);
@@ -704,12 +739,202 @@ function collectSessionText() {
   return lines.join("\n");
 }
 
-function enduranceIntervalContent(e, label) {
+function parseTimeToSeconds(str) {
+  if (!str) return null;
+  const parts = String(str).trim().split(":");
+  if (parts.length === 2) {
+    const m = parseInt(parts[0]), s = parseInt(parts[1]);
+    if (isNaN(m) || isNaN(s) || s < 0 || s > 59 || m < 0) return null;
+    return m * 60 + s;
+  }
+  if (parts.length === 3) {
+    const h = parseInt(parts[0]), m = parseInt(parts[1]), s = parseInt(parts[2]);
+    if (isNaN(h) || isNaN(m) || isNaN(s) || m < 0 || m > 59 || s < 0 || s > 59 || h < 0) return null;
+    return h * 3600 + m * 60 + s;
+  }
+  return null;
+}
+function formatPace(secPerKm) {
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return m + ":" + (s < 10 ? "0" : "") + s;
+}
+
+// Cout en oxygene d'une vitesse donnee (v en m/min), et fraction soutenable selon la duree (t en min).
+// Formules d'exercice physiology publiees (Daniels & Gilbert, 1979) - jamais exposees a l'utilisateur.
+function _o2Cost(v) { return -4.60 + 0.182258 * v + 0.000104 * v * v; }
+function _pctSustain(t) { return 0.8 + 0.1894393 * Math.exp(-0.012778 * t) + 0.2989558 * Math.exp(-0.1932605 * t); }
+function _fitnessScore(distanceM, timeMin) {
+  const v = distanceM / timeMin;
+  return _o2Cost(v) / _pctSustain(timeMin);
+}
+function _tPaceVelocity(score) {
+  const target = score * _pctSustain(60);
+  const a = 0.000104, b = 0.182258, c = -4.60 - target;
+  return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+}
+function _tPaceSecPerKm(score) {
+  const v = _tPaceVelocity(score);
+  return (1000 / v) * 60;
+}
+function _iPaceVelocity(score) {
+  const a = 0.000104, b = 0.182258, c = -4.60 - score;
+  return (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+}
+function _iPaceSecPerKm(score) {
+  const v = _iPaceVelocity(score);
+  return (1000 / v) * 60;
+}
+function _paceAtPct(score, pct) {
+  const target = score * pct;
+  const a = 0.000104, b = 0.182258, c = -4.60 - target;
+  const v = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+  return (1000 / v) * 60;
+}
+function _predictedDurationMin(score, targetDistanceM) {
+  let lo = 1, hi = 400;
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2;
+    const val = _fitnessScore(targetDistanceM, mid);
+    if (val > score) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+function _mPct(score) {
+  const marathonMin = _predictedDurationMin(score, 42195);
+  return _pctSustain(marathonMin);
+}
+
+// Point d'entree unique du calcul d'allure a partir d'un score de forme deja determine.
+function computePacesFromScore(score) {
+  if (score === null || score === undefined) return null;
+  return {
+    score: score,
+    tSec: _tPaceSecPerKm(score),
+    iSec: _iPaceSecPerKm(score),
+    easySlowSec: _paceAtPct(score, 0.59),
+    easyFastSec: _paceAtPct(score, _mPct(score))
+  };
+}
+function _scoreFromInputs(dist, totalSec) {
+  if (!dist || !totalSec || dist <= 0) return null;
+  return _fitnessScore(dist, totalSec / 60);
+}
+// Reste utilisable pour une seule performance (retrocompatibilite interne).
+function computePaces(dist, totalSec) {
+  return computePacesFromScore(_scoreFromInputs(dist, totalSec));
+}
+
+// Les performances a 12 mois ou moins de la plus recente sont moyennees ensemble.
+// Les plus anciennes que 12 mois par rapport a la plus recente sont ignorees (perimees).
+function getAggregatedScoreFromList(perfList) {
+  const entries = perfList.map(perf => {
+    const score = _scoreFromInputs(perf.distance, parseTimeToSeconds(perf.time));
+    if (score === null) return null;
+    const date = perf.date ? new Date(perf.date) : new Date();
+    return { score: score, date: date };
+  }).filter(e => e !== null);
+  if (entries.length === 0) return null;
+  if (entries.length === 1) return entries[0].score;
+  const mostRecent = entries.reduce((a, b) => (b.date > a.date ? b : a));
+  const kept = entries.filter(e => Math.abs(mostRecent.date - e.date) / 86400000 <= 365);
+  return kept.reduce((sum, e) => sum + e.score, 0) / kept.length;
+}
+function getSavedAggregatedScore() {
+  return getAggregatedScoreFromList(progress.performances);
+}
+
+function formatDurationClock(min) {
+  const totalSec = Math.round(min * 60);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return h + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  return m + ":" + String(s).padStart(2, "0");
+}
+const EQUIV_DISTANCES = [[1000,"1 km"],[3000,"3 km"],[5000,"5 km"],[10000,"10 km"],[15000,"15 km"],[21097,"Semi-marathon"],[42195,"Marathon"]];
+function renderEquivalenceRowsFromList(perfList, score) {
+  if (score === null || score === undefined) return '<div class="hint">Renseigne au moins une performance ci-dessus pour voir les equivalences sur les autres distances.</div>';
+  const realTimes = {};
+  perfList.forEach(perf => {
+    const sec = parseTimeToSeconds(perf.time);
+    if (perf.distance && sec) {
+      EQUIV_DISTANCES.forEach(([d]) => { if (Math.abs(d - perf.distance) < 1) realTimes[d] = sec; });
+    }
+  });
+  let rows = "";
+  EQUIV_DISTANCES.forEach(([d, dLabel]) => {
+    const real = realTimes[d];
+    const predMin = real !== undefined ? real / 60 : _predictedDurationMin(score, d);
+    const timeStr = formatDurationClock(predMin);
+    const paceStr = formatPace((predMin * 60) / (d / 1000)) + "/km";
+    const tag = real !== undefined ? "ta performance" : "estimation";
+    rows += '<div class="run-step' + (real !== undefined ? ' main' : '') + '"><span class="lbl">' + dLabel + '</span><span class="val" id="equivRow' + d + '">' + timeStr + ' (' + paceStr + ') - ' + tag + '</span></div>';
+  });
+  return rows;
+}
+function formatIntervalLabel(p) {
+  return p ? "~" + formatPace(p.tSec) + " a " + formatPace(p.iSec) + "/km (RPE 7-8)" : "allure 5k (RPE 7-8)";
+}
+function formatEasyLabel(p) {
+  return p ? "~" + formatPace(p.easySlowSec) + " a " + formatPace(p.easyFastSec) + "/km" : "allure conversationnelle";
+}
+
+function get5kPaceLabel() {
+  return formatIntervalLabel(computePacesFromScore(getSavedAggregatedScore()));
+}
+
+function getEasyPaceRange() {
+  const p = computePacesFromScore(getSavedAggregatedScore());
+  return p ? "~" + formatPace(p.easySlowSec) + " a " + formatPace(p.easyFastSec) + "/km" : null;
+}
+
+const PERF_DISTANCES = [[1000,"1 km"],[3000,"3 km"],[5000,"5 km"],[10000,"10 km"],[15000,"15 km"],[21097,"Semi-marathon"],[42195,"Marathon"],["custom","Autre distance"]];
+
+function renderPerfBlock(idx, perf) {
+  const curDist = perf.distance || 5000;
+  const isCustom = !PERF_DISTANCES.some(d => d[0] === curDist);
+  const distOptions = PERF_DISTANCES.map(([val, optLabel]) =>
+    '<option value="' + val + '"' + ((!isCustom && val === curDist) || (isCustom && val === "custom") ? " selected" : "") + '>' + optLabel + '</option>'
+  ).join('');
+  const title = idx === 0 ? "Performance 1 : une distance deja realisee" : ("Performance " + (idx + 1));
+  const removeBtn = idx > 0 ? '<button type="button" class="perf-remove" data-idx="' + idx + '">Retirer</button>' : '';
+  return '<div class="pace-input-row perf-block" data-idx="' + idx + '">' +
+      '<div class="perf-block-head">' +
+        '<label>' + title + '</label>' + removeBtn +
+      '</div>' +
+      '<div class="pace-input-line">' +
+        '<select class="perf-dist-select" data-idx="' + idx + '">' + distOptions + '</select>' +
+      '</div>' +
+      '<div class="pace-input-line perf-custom-wrap" data-idx="' + idx + '" style="' + (isCustom ? '' : 'display:none;') + 'margin-top:8px;">' +
+        '<input type="number" class="perf-custom-dist" data-idx="' + idx + '" placeholder="distance en m" value="' + (isCustom ? escapeHtml(String(curDist)) : "") + '" min="100" step="50">' +
+      '</div>' +
+      '<div class="pace-input-line" style="margin-top:8px;">' +
+        '<input type="text" class="perf-time" data-idx="' + idx + '" placeholder="ton temps, ex. 24:30" value="' + escapeHtml(perf.time || "") + '">' +
+        '<input type="date" class="perf-date" data-idx="' + idx + '" value="' + escapeHtml(perf.date || "") + '">' +
+      '</div>' +
+    '</div>';
+}
+
+function renderPaceTable() {
+  const blocks = progress.performances.map((perf, idx) => renderPerfBlock(idx, perf)).join('');
+  return '<div id="perfListWrap">' + blocks + '</div>' +
+    '<button type="button" id="addPerfBtn" class="add-perf-btn">+ Ajouter une performance</button>' +
+    '<div class="pace-input-row">' +
+      '<div class="pace-input-line"><span id="paceResult" class="pace-result"></span></div>' +
+      '<div class="hint">Calcule ton allure approximative a partir de tes performances recentes. Celles a 12 mois ou moins de la plus recente sont moyennees ensemble ; les plus anciennes sont ignorees. Optionnel : sans donnee, tu restes au ressenti (RPE 7-8).</div>' +
+    '</div>' +
+    '<div class="guide-sec">Equivalences estimees</div>' +
+    '<div id="equivWrap">' + renderEquivalenceRowsFromList(progress.performances, getSavedAggregatedScore()) + '</div>';
+}
+
+function enduranceIntervalContent(e, label, liveId) {
   const m = e.detail.match(/(\d+)x\((\d+)min @5k pace RPE7-8 \+ (\d+)min repos\)/);
   const segs = e.detail.split(" / ");
+  const idAttr = liveId ? ' id="' + liveId + '"' : '';
   return '<div class="run-step"><span class="lbl">Echauffement</span><span class="val">' + escapeHtml(segs[0]) + '</span></div>' +
     '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[1]) + '</span></div>' +
-    '<div class="run-step main"><span class="lbl">Intervalles</span><span class="val">' + m[1] + ' x ' + m[2] + ' min a ' + label + ', ' + m[3] + ' min repos entre chaque</span></div>' +
+    '<div class="run-step main"><span class="lbl">Intervalles</span><span class="val"' + idAttr + '>' + m[1] + ' x ' + m[2] + ' min a ' + label + ', ' + m[3] + ' min repos entre chaque</span></div>' +
     '<div class="run-step"><span class="lbl">Transition</span><span class="val">' + escapeHtml(segs[3]) + '</span></div>' +
     '<div class="run-step"><span class="lbl">Retour calme</span><span class="val">' + escapeHtml(segs[4]) + '</span></div>';
 }
@@ -743,13 +968,17 @@ function renderEndurance(idx) {
   modes.forEach(([key, label]) => {
     let content;
     if (isInterval) {
-      const pace = (key === "course" || key === "rameur") ? "allure 5k (RPE 7-8)" : "intensite RPE 7-8, soutenue mais controlee";
-      content = enduranceIntervalContent(e, pace);
+      const pace = key === "course" ? get5kPaceLabel() : (key === "rameur" ? "allure 5k (RPE 7-8)" : "intensite RPE 7-8, soutenue mais controlee");
+      content = enduranceIntervalContent(e, pace, key === "course" ? "courseIntervalVal" : null);
     } else {
       const verbe = key === "course" ? "courant" : (key === "rameur" ? "ramant" : "pedalant");
+      const range = key === "course" ? getEasyPaceRange() : null;
+      const rangeLine = key === "course" ? '<div class="run-step"><span class="lbl">Repere</span><span class="val" id="courseEasyVal">' + (range || "allure conversationnelle") + '</span></div>' : '';
       content = '<div class="run-step main"><span class="lbl">' + escapeHtml(e.name) + '</span><span class="val">' + escapeHtml(e.detail) + '</span></div>' +
+        rangeLine +
         '<div class="bloc-note">Allure conversationnelle : tu dois pouvoir parler en ' + verbe + '. Objectif aerobie, sans chercher la performance.</div>';
     }
+    if (key === "course") content += '<div id="paceTableContainer">' + renderPaceTable() + '</div>';
     panels += '<div class="option-panel endurance-panel' + (key === "course" ? " active" : "") + '" data-emode="' + key + '">' + content + '</div>';
   });
   const tabs = '<div class="option-tabs endurance-tabs">' + modes.map(([key, label]) =>
@@ -840,6 +1069,117 @@ function renderDay5(week) {
   '</div>';
 }
 
+function getCurrentIntervalMatch() {
+  const cfg = WEEKS[state.week];
+  const idx = state.day === 2 ? cfg.endIdx : (state.day === 4 ? cfg.endIdx + 1 : null);
+  if (idx === null) return null;
+  const ed = ENDURANCE[idx];
+  if (!ed) return null;
+  const m = ed.detail.match(/(\d+)x\((\d+)min @5k pace RPE7-8 \+ (\d+)min repos\)/);
+  return m ? { sets: m[1], dur: m[2], rest: m[3] } : null;
+}
+
+function bindPaceInput() {
+  const wrap = document.getElementById("perfListWrap");
+  if (!wrap) return;
+  const out = document.getElementById("paceResult");
+
+  function readAllPerfs() {
+    const list = [];
+    wrap.querySelectorAll(".perf-block").forEach(block => {
+      const sel = block.querySelector(".perf-dist-select");
+      const customInp = block.querySelector(".perf-custom-dist");
+      const timeInp = block.querySelector(".perf-time");
+      const dateInp = block.querySelector(".perf-date");
+      let dist;
+      if (sel.value === "custom") {
+        const v = parseFloat(customInp.value);
+        dist = (v && v > 0) ? v : null;
+      } else {
+        dist = parseFloat(sel.value);
+      }
+      list.push({ distance: dist || 5000, time: timeInp.value, date: dateInp.value });
+    });
+    return list;
+  }
+  function updateResult() {
+    const list = readAllPerfs();
+    const score = getAggregatedScoreFromList(list);
+    const p = computePacesFromScore(score);
+    const label = formatIntervalLabel(p);
+    const easyLabel = formatEasyLabel(p);
+    const curInterval = getCurrentIntervalMatch();
+
+    if (out) {
+      out.textContent = p
+        ? (curInterval
+            ? "-> " + formatPace(p.tSec) + " a " + formatPace(p.iSec) + "/km"
+            : "-> " + formatPace(p.easySlowSec) + " a " + formatPace(p.easyFastSec) + "/km")
+        : "";
+    }
+    const liveInterval = document.getElementById("courseIntervalVal");
+    if (curInterval && liveInterval) {
+      liveInterval.textContent = curInterval.sets + " x " + curInterval.dur + " min a " + label + ", " + curInterval.rest + " min repos entre chaque";
+    }
+    const liveEasy = document.getElementById("courseEasyVal");
+    if (liveEasy) liveEasy.textContent = easyLabel;
+
+    const equivWrap = document.getElementById("equivWrap");
+    if (equivWrap) equivWrap.innerHTML = renderEquivalenceRowsFromList(list, score);
+  }
+  function persist() {
+    progress.performances = readAllPerfs();
+    saveProgress();
+  }
+  function rerenderSection() {
+    const container = document.getElementById("paceTableContainer");
+    if (container) {
+      container.innerHTML = renderPaceTable();
+      bindPaceInput();
+    }
+  }
+  function wireBlock(block) {
+    const sel = block.querySelector(".perf-dist-select");
+    const customWrap = block.querySelector(".perf-custom-wrap");
+    const customInp = block.querySelector(".perf-custom-dist");
+    const timeInp = block.querySelector(".perf-time");
+    const dateInp = block.querySelector(".perf-date");
+    sel.addEventListener("change", () => {
+      customWrap.style.display = sel.value === "custom" ? "" : "none";
+      timeInp.value = "";
+      persist();
+      updateResult();
+    });
+    customInp.addEventListener("input", () => { persist(); updateResult(); });
+    timeInp.addEventListener("input", () => { persist(); updateResult(); });
+    dateInp.addEventListener("change", () => { persist(); updateResult(); });
+  }
+
+  wrap.querySelectorAll(".perf-block").forEach(wireBlock);
+  wrap.querySelectorAll(".perf-remove").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const list = readAllPerfs();
+      list.splice(idx, 1);
+      progress.performances = list;
+      saveProgress();
+      rerenderSection();
+    });
+  });
+  const addBtn = document.getElementById("addPerfBtn");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const list = readAllPerfs();
+      list.push({ distance: 5000, time: "", date: "" });
+      progress.performances = list;
+      saveProgress();
+      rerenderSection();
+    });
+  }
+
+  updateResult();
+}
+
 function renderGuide() {
   return '' +
   '<div class="session guide">' +
@@ -888,7 +1228,7 @@ function renderGuide() {
 
     '<div class="guide-sec">Endurance et test 5K</div>' +
     '<div class="guide-block">' +
-      '<strong>Explore Run</strong> : sortie facile, tu peux parler en courant. <strong>Run structure</strong> : intervalles a allure 5k. En <strong>semaine 4</strong>, tu fais un test 5K chronometre : n\'importe quel parcours plat de 5 km, mesure a la montre ou via une app, note ton temps. Refais le meme parcours plus tard pour comparer ta progression.' +
+      '<strong>Explore Run</strong> : sortie facile, tu peux parler en courant. <strong>Run structure</strong> : intervalles a allure 5k. En <strong>semaine 4</strong>, tu fais un test 5K chronometre : n\'importe quel parcours plat de 5 km, mesure a la montre ou via une app, note ton temps. Refais le meme parcours plus tard pour comparer ta progression. Sur l\'onglet Course d\'une seance d\'endurance, renseigne une distance et un temps deja realises pour obtenir ton allure approximative.' +
     '</div>' +
 
     '<div class="guide-sec">Jour 5</div>' +
@@ -929,6 +1269,7 @@ function render() {
   bindOptionTabs();
   bindTrack();
   bindScores();
+  bindPaceInput();
 }
 
 function renderTabs() {
@@ -946,6 +1287,14 @@ function renderTabs() {
     b.onclick = () => { state.view = "program"; state.week = w; renderTabs(); renderDayTabs(); renderProgressBar(); render(); };
     wt.appendChild(b);
   }
+  ["DB", "Barre"].forEach(label => {
+    const b = document.createElement("button");
+    b.className = "pill locked";
+    b.type = "button";
+    b.disabled = true;
+    b.innerHTML = LOCK_ICON + label;
+    wt.appendChild(b);
+  });
 }
 
 const BIAS = { A: "Squat", B: "Up push", C: "Hinge", D: "Up pull" };
@@ -1013,7 +1362,8 @@ var T = { mode:"chrono", running:false, iv:null, ac:null,
   chronoElapsed:0, chronoAnchor:0,
   minTotal:60000, minRemaining:60000, minEnd:0,
   work:60, rest:60, rounds:4, ivStarted:false,
-  ivPhase:"work", ivRound:1, phaseEnd:0, phaseRemaining:60, wake:null };
+  ivPhase:"work", ivRound:1, phaseEnd:0, phaseRemaining:60, wake:null,
+  lastCountdownSec:null };
 
 function fmt(ms, tenths){
   if (ms < 0) ms = 0;
@@ -1038,6 +1388,23 @@ function timerBeep(count, freq){
   } catch(e){}
   if (navigator.vibrate){ try { navigator.vibrate(count>1?[110,70,110]:150); } catch(e){} }
 }
+function tapBeep(){ timerBeep(1, 1400); }
+function timerBeepLoud(count, freq){
+  try {
+    if (!T.ac) T.ac = new (window.AudioContext||window.webkitAudioContext)();
+    if (T.ac.state === "suspended") T.ac.resume();
+    count = count||1; freq = freq||880;
+    for (var i=0;i<count;i++){
+      var o=T.ac.createOscillator(), g=T.ac.createGain(), t=T.ac.currentTime+i*0.24;
+      o.type="square"; o.frequency.value=freq;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.9,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+      o.connect(g); g.connect(T.ac.destination); o.start(t); o.stop(t+0.24);
+    }
+  } catch(e){}
+  if (navigator.vibrate){ try { navigator.vibrate(count>1?[160,90,160]:220); } catch(e){} }
+}
 function reqWake(){ try { if ("wakeLock" in navigator) navigator.wakeLock.request("screen").then(function(w){T.wake=w;}).catch(function(){}); } catch(e){} }
 function relWake(){ try { if (T.wake){ T.wake.release(); T.wake=null; } } catch(e){} }
 
@@ -1061,22 +1428,33 @@ function tick(){
     setDisplay(fmt(T.chronoElapsed,true));
   } else if (T.mode==="minuteur"){
     var rem = T.minEnd - now;
-    if (rem<=0){ setDisplay(fmt(0,false)); stopTick(); T.running=false; T.minRemaining=T.minTotal; timerBeep(3,1000); relWake(); updateStartBtn(); updateFab(); return; }
+    if (rem<=0){ setDisplay(fmt(0,false)); stopTick(); T.running=false; T.minRemaining=T.minTotal; T.lastCountdownSec=null; timerBeep(3,1000); relWake(); updateStartBtn(); updateFab(); return; }
+    countdownBeep(rem);
     T.minRemaining = rem; setDisplay(fmt(rem,false));
   } else {
     var r = T.phaseEnd - now;
     if (r<=0){ advancePhase(now); updateFab(); return; }
+    countdownBeep(r);
     T.phaseRemaining = r; setDisplay(fmt(r,false), phaseLabel());
   }
   updateFab();
 }
+function countdownBeep(remainingMs){
+  var remSec = Math.ceil(remainingMs/1000);
+  if (remSec <= 3 && remSec >= 1 && remSec !== T.lastCountdownSec){
+    T.lastCountdownSec = remSec;
+    timerBeep(1, 660);
+  }
+}
 function advancePhase(now){
+  T.lastCountdownSec = null;
   if (T.ivPhase==="work"){
     if (T.rest>0){ T.ivPhase="rest"; T.phaseEnd = now + T.rest*1000; setPhaseClass("rest"); setDisplay(fmt(T.rest*1000,false), phaseLabel()); timerBeep(2,520); }
     else nextRound(now);
   } else nextRound(now);
 }
 function nextRound(now){
+  T.lastCountdownSec = null;
   T.ivRound++;
   if (T.ivRound > T.rounds){ finishIv(); return; }
   T.ivPhase="work"; T.phaseEnd = now + T.work*1000; setPhaseClass("work"); setDisplay(fmt(T.work*1000,false), phaseLabel()); timerBeep(1,880);
@@ -1084,19 +1462,20 @@ function nextRound(now){
 function finishIv(){ stopTick(); T.running=false; T.ivStarted=false; relWake(); setPhaseClass("done"); setDisplay("00:00","Termine !"); timerBeep(4,760); updateStartBtn(); updateFab(); }
 
 function toggleTimer(){
-  if (T.running){ pauseTimer(); return; }
+  if (T.running){ timerBeepLoud(2, 500); pauseTimer(); return; }
   if (!T.ac){ try { T.ac = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
   if (T.ac && T.ac.state==="suspended") T.ac.resume();
+  timerBeepLoud(2, 900);
   var now = performance.now();
   if (T.mode==="chrono"){ T.chronoAnchor = now - T.chronoElapsed; }
-  else if (T.mode==="minuteur"){ if (T.minRemaining<=0) T.minRemaining=T.minTotal; T.minEnd = now + T.minRemaining; }
+  else if (T.mode==="minuteur"){ if (T.minRemaining<=0){ T.minRemaining=T.minTotal; T.lastCountdownSec=null; } T.minEnd = now + T.minRemaining; }
   else {
     if (!T.ivStarted){
       T.work = Math.max(1, parseInt(document.getElementById("ivWork").value)||60);
       T.rest = Math.max(0, parseInt(document.getElementById("ivRest").value)||0);
       T.rounds = Math.max(1, parseInt(document.getElementById("ivRounds").value)||1);
-      T.ivRound=1; T.ivPhase="work"; T.phaseEnd = now + T.work*1000; T.ivStarted=true;
-      setPhaseClass("work"); setDisplay(fmt(T.work*1000,false), phaseLabel()); timerBeep(1,880);
+      T.ivRound=1; T.ivPhase="work"; T.phaseEnd = now + T.work*1000; T.ivStarted=true; T.lastCountdownSec=null;
+      setPhaseClass("work"); setDisplay(fmt(T.work*1000,false), phaseLabel());
     } else { T.phaseEnd = now + T.phaseRemaining; }
   }
   T.running=true; startTick(); reqWake(); updateStartBtn();
@@ -1109,7 +1488,7 @@ function pauseTimer(){
   T.running=false; stopTick(); relWake(); updateStartBtn(); updateFab();
 }
 function resetTimer(){
-  T.running=false; stopTick(); relWake();
+  T.running=false; stopTick(); relWake(); T.lastCountdownSec=null;
   if (T.mode==="chrono"){ T.chronoElapsed=0; setDisplay(fmt(0,true),""); setPhaseClass(""); }
   else if (T.mode==="minuteur"){ T.minRemaining=T.minTotal; setDisplay(fmt(T.minTotal,false),""); setPhaseClass(""); }
   else { T.ivStarted=false; T.ivRound=1; T.ivPhase="work"; setPhaseClass(""); setDisplay(fmt((parseInt(document.getElementById("ivWork").value)||60)*1000,false), ""); }
@@ -1135,8 +1514,8 @@ function selectPreset(sec){
   document.querySelectorAll("#presetRow button").forEach(function(b){ b.classList.toggle("sel", parseInt(b.dataset.sec)===sec); });
   if (!T.running && T.mode==="minuteur") setDisplay(fmt(T.minTotal,false),"");
 }
-function openTimer(){ document.getElementById("timerSheet").classList.add("open"); document.getElementById("timerBackdrop").classList.add("open"); }
-function closeTimer(){ document.getElementById("timerSheet").classList.remove("open"); document.getElementById("timerBackdrop").classList.remove("open"); }
+function openTimer(){ tapBeep(); document.getElementById("timerSheet").classList.add("open"); document.getElementById("timerBackdrop").classList.add("open"); }
+function closeTimer(){ tapBeep(); document.getElementById("timerSheet").classList.remove("open"); document.getElementById("timerBackdrop").classList.remove("open"); }
 
 function clampFabPos(x, y, w, h){
   const margin = 6;
@@ -1208,7 +1587,7 @@ function updateFab(){
 }
 function initTimer(){
   var presets=[[30,"0:30"],[60,"1:00"],[90,"1:30"],[120,"2:00"],[180,"3:00"]];
-  document.getElementById("presetRow").innerHTML = presets.map(function(p){ return '<button type="button" data-sec="'+p[0]+'" onclick="selectPreset('+p[0]+')">'+p[1]+'</button>'; }).join("");
+  document.getElementById("presetRow").innerHTML = presets.map(function(p){ return '<button type="button" data-sec="'+p[0]+'" onclick="tapBeep();selectPreset('+p[0]+')">'+p[1]+'</button>'; }).join("");
   selectPreset(60);
   setTimerMode("chrono");
 }
